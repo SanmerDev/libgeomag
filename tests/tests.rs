@@ -1,0 +1,92 @@
+#[cfg(test)]
+mod tests {
+    use libgeomag::{DateTime, GeodeticLocation, Geomag};
+
+    #[test]
+    fn test_wmm() {
+        let l = GeodeticLocation::new(102.0, 24.0, 1.9);
+        let t = DateTime::new(2023, 11, 1, 0, 0, 0);
+        let m = Geomag::wmm(l, t).unwrap();
+
+        assert!(m.x - 37637.0 < 1.0);
+        assert!(m.x_dot - 4.0 < 1.0);
+        assert!(m.y - (-1100.0) < 1.0);
+        assert!(m.y_dot - (-40.0) < 1.0);
+        assert!(m.z - 28826.0 < 1.0);
+        assert!(m.z_dot - 106.0 < 1.0);
+        assert!(m.h - 37653.0 < 1.0);
+        assert!(m.h_dot - 5.0 < 1.0);
+        assert!(m.f - 47420.0 < 1.0);
+        assert!(m.f_dot - 69.0 < 1.0);
+        assert!(m.d - (-0.02) < 0.01);
+        assert!(m.d_dot - (-0.001) < 0.001);
+        assert!(m.i - 0.6 < 0.1);
+        assert!(m.i_dot - 0.001 < 0.001);
+    }
+
+    #[test]
+    fn test_igrf() {
+        let l = GeodeticLocation::new(102.0, 24.0, 1.9);
+        let t = DateTime::new(2023, 11, 1, 0, 0, 0);
+        let m = Geomag::igrf(l, t).unwrap();
+
+        assert!(m.x - 37634.0 < 1.0);
+        assert!(m.x_dot - 1.0 < 1.0);
+        assert!(m.y - (-1103.0) < 1.0);
+        assert!(m.y_dot - (-40.0) < 1.0);
+        assert!(m.z - 28846.0 < 1.0);
+        assert!(m.z_dot - 112.0 < 1.0);
+        assert!(m.h - 37650.0 < 1.0);
+        assert!(m.h_dot - 2.0 < 1.0);
+        assert!(m.f - 47430.0 < 1.0);
+        assert!(m.f_dot - 70.0 < 1.0);
+        assert!(m.d - (-0.02) < 0.01);
+        assert!(m.d_dot - (-0.001) < 0.001);
+        assert!(m.i - 0.6 < 0.1);
+        assert!(m.i_dot - 0.001 < 0.001);
+    }
+
+    #[test]
+    fn test_wmm_pole() {
+        let l = GeodeticLocation::new(0.0, 90.0, 1.9);
+        let t = DateTime::new(2023, 11, 1, 0, 0, 0);
+        let m = Geomag::wmm(l, t).unwrap();
+
+        assert!(m.x - 1717.0 < 1.0);
+        assert!(m.x_dot - (-27.0) < 1.0);
+        assert!(m.y - 358.0 < 1.0);
+        assert!(m.y_dot - 63.0 < 1.0);
+        assert!(m.z - 56776.0 < 1.0);
+        assert!(m.z_dot - 24.0 < 1.0);
+        assert!(m.h - 1754.0 < 1.0);
+        assert!(m.h_dot - (-14.0) < 1.0);
+        assert!(m.f - 56803.0 < 1.0);
+        assert!(m.f_dot - 23.0 < 1.0);
+        assert!(m.d - 0.2 < 0.1);
+        assert!(m.d_dot - 0.03 < 0.01);
+        assert!(m.i - 1.0 < 1.0);
+        assert!(m.i_dot - 0.0002 < 0.0001);
+    }
+
+    #[test]
+    fn test_igrf_pole() {
+        let l = GeodeticLocation::new(0.0, 90.0, 1.9);
+        let t = DateTime::new(2023, 11, 1, 0, 0, 0);
+        let m = Geomag::igrf(l, t).unwrap();
+
+        assert!(m.x - 1711.0 < 1.0);
+        assert!(m.x_dot - (-24.0) < 1.0);
+        assert!(m.y - 364.0 < 1.0);
+        assert!(m.y_dot - 62.0 < 1.0);
+        assert!(m.z - 56778.0 < 1.0);
+        assert!(m.z_dot - 25.0 < 1.0);
+        assert!(m.h - 1749.0 < 1.0);
+        assert!(m.h_dot - (-10.0) < 1.0);
+        assert!(m.f - 56805.0 < 1.0);
+        assert!(m.f_dot - 24.0 < 1.0);
+        assert!(m.d - 0.2 < 0.1);
+        assert!(m.d_dot - 0.03 < 0.01);
+        assert!(m.i - 1.0 < 1.0);
+        assert!(m.i_dot - 0.0002 < 0.0001);
+    }
+}
