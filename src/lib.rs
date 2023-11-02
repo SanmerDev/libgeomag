@@ -152,12 +152,12 @@ impl<T: Gauss> Geomag<T> {
 }
 
 impl Geomag<()> {
-    pub fn wmm(location: GeodeticLocation, datetime: DateTime) -> Option<MagneticField> {
-        if !WMM::is_valid(datetime.decimal) {
+    pub fn wmm_d(location: GeodeticLocation, decimal: f64) -> Option<MagneticField> {
+        if !WMM::is_valid(decimal) {
             return None;
         }
 
-        let wmm = WMM::new(datetime.decimal);
+        let wmm = WMM::new(decimal);
         let loc = location.into();
         let n = wmm.deg;
 
@@ -167,12 +167,12 @@ impl Geomag<()> {
         Some(xyz.into())
     }
 
-    pub fn igrf(location: GeodeticLocation, datetime: DateTime) -> Option<MagneticField> {
-        if !IGRF::is_valid(datetime.decimal) {
+    pub fn igrf_d(location: GeodeticLocation, decimal: f64) -> Option<MagneticField> {
+        if !IGRF::is_valid(decimal) {
             return None;
         }
 
-        let igrf = IGRF::new(datetime.decimal);
+        let igrf = IGRF::new(decimal);
         let loc = location.into();
         let n = igrf.deg;
 
@@ -180,5 +180,13 @@ impl Geomag<()> {
         let xyz = mag.xyz(n);
 
         Some(xyz.into())
+    }
+
+    pub fn wmm(location: GeodeticLocation, datetime: DateTime) -> Option<MagneticField> {
+        Geomag::wmm_d(location, datetime.decimal)
+    }
+
+    pub fn igrf(location: GeodeticLocation, datetime: DateTime) -> Option<MagneticField> {
+        Geomag::igrf_d(location, datetime.decimal)
     }
 }
