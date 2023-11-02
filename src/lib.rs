@@ -56,7 +56,6 @@ impl From<Prime> for MagneticField {
 pub struct Geomag<T: Gauss> {
     gauss: T,
     location: GeocentricLocation,
-    prime: Prime,
 }
 
 impl<T: Gauss> Geomag<T> {
@@ -64,7 +63,6 @@ impl<T: Gauss> Geomag<T> {
         Geomag {
             gauss: g,
             location: l,
-            prime: Prime::default(),
         }
     }
 
@@ -84,7 +82,9 @@ impl<T: Gauss> Geomag<T> {
         }
     }
 
-    fn xyz_prime(&mut self, n: usize) {
+    fn xyz_prime(&self, n: usize) -> Prime {
+        let mut prime = Prime::default();
+
         let r = self.location.radius;
         let p = self.location.latitude;
         let l = self.location.longitude;
@@ -112,24 +112,27 @@ impl<T: Gauss> Geomag<T> {
                 let hcl = self.gauss.h(n, m) * mlc;
                 let hsl = self.gauss.h(n, m) * mls;
 
-                self.prime.x += -f * (gcl + hsl) * dmn;
-                self.prime.y += (f / pc) * mf * (gsl - hcl) * pmn;
-                self.prime.z += -f * (nf + 1.0) * (gcl + hsl) * pmn;
+                prime.x += -f * (gcl + hsl) * dmn;
+                prime.y += (f / pc) * mf * (gsl - hcl) * pmn;
+                prime.z += -f * (nf + 1.0) * (gcl + hsl) * pmn;
 
                 let d_gcl = self.gauss.dg(n, m) * mlc;
                 let d_gsl = self.gauss.dg(n, m) * mls;
                 let d_hcl = self.gauss.dh(n, m) * mlc;
                 let d_hsl = self.gauss.dh(n, m) * mls;
 
-                self.prime.dx += (-f) * (d_gcl + d_hsl) * dmn;
-                self.prime.dy += (f / pc) * mf * (d_gsl - d_hcl) * pmn;
-                self.prime.dz += -f * (nf + 1.0) * (d_gcl + d_hsl) * pmn;
+                prime.dx += (-f) * (d_gcl + d_hsl) * dmn;
+                prime.dy += (f / pc) * mf * (d_gsl - d_hcl) * pmn;
+                prime.dz += -f * (nf + 1.0) * (d_gcl + d_hsl) * pmn;
             }
         }
+
+        prime
     }
 
-    fn xyz(&mut self, n: usize) -> Prime {
-        self.xyz_prime(n);
+    fn xyz(&self, n: usize) -> Prime {
+        let mut xyz = Prime::default();
+        let prime = self.xyz_prime(n);
 
         let p1 = self.location.latitude;
         let p = self.location.inner.latitude;
@@ -137,17 +140,15 @@ impl<T: Gauss> Geomag<T> {
         let sin_p = (p1 - p).sin();
         let cos_p = (p1 - p).cos();
 
-        let mut prime = Prime::default();
+        xyz.x = prime.x * cos_p - prime.z * sin_p;
+        xyz.y = prime.y;
+        xyz.z = prime.x * sin_p + prime.z * cos_p;
 
-        prime.x = self.prime.x * cos_p - self.prime.z * sin_p;
-        prime.y = self.prime.y;
-        prime.z = self.prime.x * sin_p + self.prime.z * cos_p;
+        xyz.dx = prime.dx * cos_p - prime.dz * sin_p;
+        xyz.dy = prime.dy;
+        xyz.dz = prime.dx * sin_p + prime.dz * cos_p;
 
-        prime.dx = self.prime.dx * cos_p - self.prime.dz * sin_p;
-        prime.dy = self.prime.dy;
-        prime.dz = self.prime.dx * sin_p + self.prime.dz * cos_p;
-
-        prime
+        xyz
     }
 }
 
@@ -161,7 +162,7 @@ impl Geomag<()> {
         let loc = location.into();
         let n = wmm.deg;
 
-        let mut mag = Geomag::new(wmm, loc);
+        let mag = Geomag::new(wmm, loc);
         let xyz = mag.xyz(n);
 
         Some(xyz.into())
@@ -176,7 +177,7 @@ impl Geomag<()> {
         let loc = location.into();
         let n = igrf.deg;
 
-        let mut mag = Geomag::new(igrf, loc);
+        let mag = Geomag::new(igrf, loc);
         let xyz = mag.xyz(n);
 
         Some(xyz.into())
