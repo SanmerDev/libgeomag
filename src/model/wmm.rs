@@ -97,7 +97,6 @@ const WMM_COEFFICIENTS: [[f64; 4]; 90] = [
     [-0.3, 0.5, -0.1, -0.1],
 ];
 
-#[derive(Debug)]
 pub struct WMM {
     t0: f64,
     t: f64,

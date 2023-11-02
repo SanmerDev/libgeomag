@@ -871,7 +871,6 @@ const IGRF_COEFFICIENTS_H: [[f64; 26]; 104] = [
     ],
 ];
 
-#[derive(Debug)]
 pub struct IGRF {
     t0: f64,
     t: f64,

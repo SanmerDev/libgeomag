@@ -12,7 +12,7 @@ mod model;
 mod polynomial;
 pub mod util;
 
-#[derive(Default, Debug)]
+#[derive(Default)]
 struct Vector {
     x: f64,
     y: f64,
