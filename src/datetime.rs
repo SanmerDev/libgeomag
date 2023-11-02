@@ -12,9 +12,16 @@ pub struct DateTime {
 }
 
 impl DateTime {
-    pub fn new(year: i32, month: u32, day: u32, hour: u32, min: u32, sec: u32) -> Self {
+    pub fn new(year: i32, month: i32, day: i32, hour: i32, min: i32, sec: i32) -> Self {
         let dt = Utc
-            .with_ymd_and_hms(year, month, day, hour, min, sec)
+            .with_ymd_and_hms(
+                year,
+                month as u32,
+                day as u32,
+                hour as u32,
+                min as u32,
+                sec as u32,
+            )
             .unwrap();
 
         DateTime {
