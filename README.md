@@ -11,13 +11,13 @@ libsac = { git = "https://github.com/SanmerDev/libgeomag.git", branch = "main" }
 use libgeomag::{DateTime, GeodeticLocation, Geomag};
 
 fn main() {
-    let l = GeodeticLocation::new(0.0, 80.0, 0.0);
-    let t = DateTime::new(2022, 1, 1, 0, 0, 0);
+    let l = GeodeticLocation::new(102.0, 24.0, 1.9);
+    let t = DateTime::new(2023, 11, 1, 0, 0, 0);
 
-    let m = Geomag::wmm(l, t);
+    let m = Geomag::wmm(l, t).unwrap();
     println!("{:?}", m);
 
-    let m = Geomag::igrf(l, t);
+    let m = Geomag::igrf(l, t).unwrap();
     println!("{:?}", m);
 }
 ```
