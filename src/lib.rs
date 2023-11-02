@@ -1,5 +1,5 @@
 pub use crate::datetime::DateTime;
-use crate::field::MagneticField;
+pub use crate::field::MagneticField;
 use crate::location::GeocentricLocation;
 pub use crate::location::GeodeticLocation;
 use crate::model::{Gauss, IGRF, WMM};
