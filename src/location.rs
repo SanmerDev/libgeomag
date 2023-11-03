@@ -1,6 +1,6 @@
 use crate::util::MathExt;
 
-const A: f64 = 6378137_f64;
+const A: f64 = 6378137.0;
 const F: f64 = 1.0 / 298.257223563;
 
 #[derive(Debug, Copy, Clone)]

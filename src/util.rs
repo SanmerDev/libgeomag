@@ -1,3 +1,4 @@
+use std::f64::consts::PI;
 use chrono::{DateTime, Datelike, NaiveDate, TimeZone, Timelike};
 
 pub trait MathExt {
@@ -7,11 +8,11 @@ pub trait MathExt {
 
 impl MathExt for f64 {
     fn to_rad(&self) -> f64 {
-        (self * std::f64::consts::PI) / 180.0
+        (self * PI) / 180.0
     }
 
     fn to_deg(&self) -> f64 {
-        (self * 180.0) / std::f64::consts::PI
+        (self * 180.0) / PI
     }
 }
 

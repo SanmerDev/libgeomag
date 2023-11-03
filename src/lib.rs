@@ -26,13 +26,13 @@ impl From<Vector> for MagneticField {
     fn from(v: Vector) -> Self {
         let h = (v.x.powi(2) + v.y.powi(2)).sqrt();
         let f = (h.powi(2) + v.z.powi(2)).sqrt();
-        let i = (v.z / h).atan();
         let d = (v.y / v.x).atan();
+        let i = (v.z / h).atan();
 
         let dh = (v.x * v.dx + v.y * v.dy) / h;
         let df = (v.x * v.dx + v.y * v.dy + v.z * v.dz) / f;
-        let di = (h * v.dz - v.z * dh) / f.powi(2);
         let dd = (v.x * v.dy - v.y * v.dx) / h.powi(2);
+        let di = (h * v.dz - v.z * dh) / f.powi(2);
 
         MagneticField {
             x: v.x,
@@ -68,16 +68,15 @@ impl<T: Gauss> Geomag<T> {
 
     fn lpmn(&self, n: usize, m: usize, z: f64) -> f64 {
         let mf = m as f64;
-        let pnm = lpmv(n, m, z) * (-1.0_f64).powf(mf);
+        let pnm = (-1.0_f64).powf(mf) * lpmv(n, m, z);
 
         if m > 0 {
             let mut d = 1.0;
             for i in (n - m + 1)..=(n + m) {
                 d *= i as f64;
             }
-            let c = 1. / d;
 
-            pnm * (2.0 * c).sqrt()
+            pnm * (2.0 * (1.0 / d)).sqrt()
         } else {
             pnm
         }
@@ -89,7 +88,7 @@ impl<T: Gauss> Geomag<T> {
         let r = self.location.radius;
         let p = self.location.latitude;
         let l = self.location.longitude;
-        let a = 6371200_f64;
+        let a = 6371200.0_f64;
         let ps = p.sin();
         let pc = p.cos();
 
