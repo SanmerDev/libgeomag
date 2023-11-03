@@ -3,7 +3,7 @@ mod tests {
     use libgeomag::{DateTime, GeodeticLocation, Geomag};
 
     #[test]
-    fn test_wmm() {
+    fn wmm() {
         let l = GeodeticLocation::new(102.0, 24.0, 1.9);
         let t = DateTime::new(2023, 11, 1, 0, 0, 0);
         let m = Geomag::wmm(l, t).unwrap();
@@ -25,7 +25,7 @@ mod tests {
     }
 
     #[test]
-    fn test_igrf() {
+    fn igrf() {
         let l = GeodeticLocation::new(102.0, 24.0, 1.9);
         let t = DateTime::new(2023, 11, 1, 0, 0, 0);
         let m = Geomag::igrf(l, t).unwrap();
@@ -47,7 +47,7 @@ mod tests {
     }
 
     #[test]
-    fn test_wmm_pole() {
+    fn wmm_at_pole() {
         let l = GeodeticLocation::new(0.0, 90.0, 1.9);
         let t = DateTime::new(2023, 11, 1, 0, 0, 0);
         let m = Geomag::wmm(l, t).unwrap();
@@ -69,7 +69,7 @@ mod tests {
     }
 
     #[test]
-    fn test_igrf_pole() {
+    fn igrf_at_pole() {
         let l = GeodeticLocation::new(0.0, 90.0, 1.9);
         let t = DateTime::new(2023, 11, 1, 0, 0, 0);
         let m = Geomag::igrf(l, t).unwrap();
