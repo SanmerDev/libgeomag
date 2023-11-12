@@ -105,16 +105,22 @@ pub struct WMM {
 }
 
 impl WMM {
-    pub fn new(t: f64) -> Self {
-        WMM {
+    pub fn new(decimal: f64) -> Option<Self> {
+        if !WMM::is_valid(decimal) {
+            return None;
+        }
+
+        let wmm = WMM {
             t0: WMM_T0,
-            t,
+            t: decimal,
             inner: WMM_COEFFICIENTS,
             deg: WMM_N,
-        }
+        };
+
+        Some(wmm)
     }
 
-    pub fn is_valid(t: f64) -> bool {
+    fn is_valid(t: f64) -> bool {
         WMM_START < t && t < WMM_END
     }
 }

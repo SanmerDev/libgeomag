@@ -879,19 +879,24 @@ pub struct IGRF {
 }
 
 impl IGRF {
-    pub fn new(t: f64) -> Self {
-        let n = if t < 2000.0 { IGRF_N_1900 } else { IGRF_N_2000 };
+    pub fn new(decimal: f64) -> Option<Self> {
+        if !IGRF::is_valid(decimal) {
+            return None
+        }
 
-        let iy = IGRF::index_for_year(t);
+        let n = if decimal < 2000.0 { IGRF_N_1900 } else { IGRF_N_2000 };
+        let iy = IGRF::index_for_year(decimal);
         let t0 = IGRF::year_from_index(iy);
         let inner = IGRF::build(t0, iy, n);
 
-        IGRF {
+        let igrf = IGRF {
             t0,
-            t,
+            t: decimal,
             inner,
             deg: n,
-        }
+        };
+
+        Some(igrf)
     }
 
     pub fn build(t0: f64, iy: usize, n: usize) -> [[f64; 4]; 104] {
@@ -933,7 +938,7 @@ impl IGRF {
         inner
     }
 
-    pub fn is_valid(t: f64) -> bool {
+    fn is_valid(t: f64) -> bool {
         IGRF_START < t && t < IGRF_END
     }
 

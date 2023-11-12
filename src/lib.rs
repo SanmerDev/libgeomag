@@ -152,11 +152,7 @@ impl<T: Gauss> Geomag<T> {
 
 impl Geomag<()> {
     pub fn wmm_d(location: GeodeticLocation, decimal: f64) -> Option<MagneticField> {
-        if !WMM::is_valid(decimal) {
-            return None;
-        }
-
-        let wmm = WMM::new(decimal);
+        let wmm = WMM::new(decimal)?;
         let loc = location.into();
         let n = wmm.deg;
 
@@ -167,11 +163,7 @@ impl Geomag<()> {
     }
 
     pub fn igrf_d(location: GeodeticLocation, decimal: f64) -> Option<MagneticField> {
-        if !IGRF::is_valid(decimal) {
-            return None;
-        }
-
-        let igrf = IGRF::new(decimal);
+        let igrf = IGRF::new(decimal)?;
         let loc = location.into();
         let n = igrf.deg;
 
