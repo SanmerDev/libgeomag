@@ -8,16 +8,19 @@ libsac = { git = "https://github.com/SanmerDev/libgeomag.git", branch = "main" }
 
 ## demo
 ```rust
-use libgeomag::{DateTime, GeodeticLocation, Geomag};
+use libgeomag::{DateTime, GeodeticLocation, ModelExt, IGRF, WMM};
 
 fn main() {
     let l = GeodeticLocation::new(102.0, 24.0, 1.9);
     let t = DateTime::new(2023, 11, 1, 0, 0, 0);
 
-    let m = Geomag::wmm(l, t).unwrap();
+    let wmm = WMM::new(t.decimal).unwrap();
+    let igrf = IGRF::new(t.decimal).unwrap();
+
+    let m = wmm.single(l);
     println!("{:?}", m);
 
-    let m = Geomag::igrf(l, t).unwrap();
+    let m = igrf.single(l);
     println!("{:?}", m);
 }
 ```
