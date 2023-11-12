@@ -1,4 +1,4 @@
-use crate::model::Gauss;
+use crate::model::Model;
 
 const WMM_START: f64 = 2020.0;
 const WMM_END: f64 = 2025.0;
@@ -97,11 +97,53 @@ const WMM_COEFFICIENTS: [[f64; 4]; 90] = [
     [-0.3, 0.5, -0.1, -0.1],
 ];
 
+fn index_for_nm(n: usize, m: usize) -> usize {
+    n * (n + 1) / 2 + m - 1
+}
+
 pub struct WMM {
+    deg: usize,
     t0: f64,
     t: f64,
     inner: [[f64; 4]; 90],
-    pub(crate) deg: usize,
+}
+
+impl Model for WMM {
+    fn is_valid(t: f64) -> bool {
+        WMM_START < t && t < WMM_END
+    }
+
+    fn deg(&self) -> usize {
+        self.deg
+    }
+
+    fn t0(&self) -> f64 {
+        self.t0
+    }
+
+    fn t(&self) -> f64 {
+        self.t
+    }
+
+    fn g(&self, n: usize, m: usize) -> f64 {
+        let i = index_for_nm(n, m);
+        self.inner[i][0]
+    }
+
+    fn h(&self, n: usize, m: usize) -> f64 {
+        let i = index_for_nm(n, m);
+        self.inner[i][1]
+    }
+
+    fn g_sv(&self, n: usize, m: usize) -> f64 {
+        let i = index_for_nm(n, m);
+        self.inner[i][2]
+    }
+
+    fn h_sv(&self, n: usize, m: usize) -> f64 {
+        let i = index_for_nm(n, m);
+        self.inner[i][3]
+    }
 }
 
 impl WMM {
@@ -111,56 +153,12 @@ impl WMM {
         }
 
         let wmm = WMM {
+            deg: WMM_N,
             t0: WMM_T0,
             t: decimal,
             inner: WMM_COEFFICIENTS,
-            deg: WMM_N,
         };
 
         Some(wmm)
-    }
-
-    fn is_valid(t: f64) -> bool {
-        WMM_START < t && t < WMM_END
-    }
-}
-
-impl WMM {
-    fn g(&self, n: usize, m: usize) -> f64 {
-        let i = WMM::index_for_nm(n, m);
-        self.inner[i][0]
-    }
-
-    fn h(&self, n: usize, m: usize) -> f64 {
-        let i = WMM::index_for_nm(n, m);
-        self.inner[i][1]
-    }
-
-    fn g_sv(&self, n: usize, m: usize) -> f64 {
-        let i = WMM::index_for_nm(n, m);
-        self.inner[i][2]
-    }
-
-    fn h_sv(&self, n: usize, m: usize) -> f64 {
-        let i = WMM::index_for_nm(n, m);
-        self.inner[i][3]
-    }
-}
-
-impl Gauss for WMM {
-    fn g(&self, n: usize, m: usize) -> f64 {
-        self.g(n, m) + (self.t - self.t0) * self.g_sv(n, m)
-    }
-
-    fn h(&self, n: usize, m: usize) -> f64 {
-        self.h(n, m) + (self.t - self.t0) * self.h_sv(n, m)
-    }
-
-    fn dg(&self, n: usize, m: usize) -> f64 {
-        self.g_sv(n, m)
-    }
-
-    fn dh(&self, n: usize, m: usize) -> f64 {
-        self.h_sv(n, m)
     }
 }

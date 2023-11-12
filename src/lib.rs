@@ -2,7 +2,8 @@ pub use crate::datetime::DateTime;
 pub use crate::field::MagneticField;
 use crate::location::GeocentricLocation;
 pub use crate::location::GeodeticLocation;
-use crate::model::{Gauss, IGRF, WMM};
+use crate::model::{Gauss, Model};
+pub use crate::model::{IGRF, WMM};
 use crate::polynomial::lpmv;
 
 mod datetime;
@@ -53,14 +54,16 @@ impl From<Vector> for MagneticField {
     }
 }
 
-pub struct Geomag<T: Gauss> {
+struct Calculator<T: Gauss> {
+    deg: usize,
     gauss: T,
     location: GeocentricLocation,
 }
 
-impl<T: Gauss> Geomag<T> {
-    fn new(g: T, l: GeocentricLocation) -> Self {
-        Geomag {
+impl<T: Gauss> Calculator<T> {
+    fn new(n: usize, g: T, l: GeocentricLocation) -> Self {
+        Calculator {
+            deg: n,
             gauss: g,
             location: l,
         }
@@ -82,7 +85,7 @@ impl<T: Gauss> Geomag<T> {
         }
     }
 
-    fn xyz_prime(&self, n: usize) -> Vector {
+    fn xyz_prime(&self) -> Vector {
         let mut vector = Vector::default();
 
         let r = self.location.radius;
@@ -92,7 +95,7 @@ impl<T: Gauss> Geomag<T> {
         let ps = p.sin();
         let pc = p.cos();
 
-        for n in 1..=n {
+        for n in 1..=self.deg {
             let nf = n as f64;
             let f = (a / r).powf(nf + 2.0);
 
@@ -129,9 +132,9 @@ impl<T: Gauss> Geomag<T> {
         vector
     }
 
-    fn xyz(&self, n: usize) -> Vector {
+    fn xyz(&self) -> Vector {
         let mut xyz = Vector::default();
-        let vector = self.xyz_prime(n);
+        let vector = self.xyz_prime();
 
         let p1 = self.location.latitude;
         let p = self.location.inner.latitude;
@@ -150,34 +153,15 @@ impl<T: Gauss> Geomag<T> {
     }
 }
 
-impl Geomag<()> {
-    pub fn wmm_d(location: GeodeticLocation, decimal: f64) -> Option<MagneticField> {
-        let wmm = WMM::new(decimal)?;
-        let loc = location.into();
-        let n = wmm.deg;
+pub trait ModelExt {
+    fn single(self, location: GeodeticLocation) -> MagneticField;
+}
 
-        let mag = Geomag::new(wmm, loc);
-        let xyz = mag.xyz(n);
-
-        Some(xyz.into())
-    }
-
-    pub fn igrf_d(location: GeodeticLocation, decimal: f64) -> Option<MagneticField> {
-        let igrf = IGRF::new(decimal)?;
-        let loc = location.into();
-        let n = igrf.deg;
-
-        let mag = Geomag::new(igrf, loc);
-        let xyz = mag.xyz(n);
-
-        Some(xyz.into())
-    }
-
-    pub fn wmm(location: GeodeticLocation, datetime: DateTime) -> Option<MagneticField> {
-        Geomag::wmm_d(location, datetime.decimal)
-    }
-
-    pub fn igrf(location: GeodeticLocation, datetime: DateTime) -> Option<MagneticField> {
-        Geomag::igrf_d(location, datetime.decimal)
+impl<T: Model> ModelExt for T {
+    fn single(self, location: GeodeticLocation) -> MagneticField {
+        let l = location.into();
+        let mag = Calculator::new(self.deg(), self, l);
+        let xyz = mag.xyz();
+        xyz.into()
     }
 }

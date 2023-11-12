@@ -1,4 +1,4 @@
-use crate::model::Gauss;
+use crate::model::Model;
 
 const IGRF_EPOCH_INTERVAL: f64 = 5.0;
 const IGRF_START: f64 = 1900.0;
@@ -871,29 +871,83 @@ const IGRF_COEFFICIENTS_H: [[f64; 26]; 104] = [
     ],
 ];
 
+fn index_for_nm(n: usize, m: usize) -> usize {
+    n * (n + 1) / 2 + m - 1
+}
+
+fn index_for_year(t: f64) -> usize {
+    ((t - IGRF_START) / IGRF_EPOCH_INTERVAL).floor() as usize
+}
+
+fn year_from_index(i: usize) -> f64 {
+    IGRF_EPOCH_INTERVAL * (i as f64) + IGRF_START
+}
+
 pub struct IGRF {
+    deg: usize,
     t0: f64,
     t: f64,
     inner: [[f64; 4]; 104],
-    pub(crate) deg: usize,
+}
+
+impl Model for IGRF {
+    fn is_valid(t: f64) -> bool {
+        IGRF_START < t && t < IGRF_END
+    }
+
+    fn deg(&self) -> usize {
+        self.deg
+    }
+
+    fn t0(&self) -> f64 {
+        self.t0
+    }
+
+    fn t(&self) -> f64 {
+        self.t
+    }
+
+    fn g(&self, n: usize, m: usize) -> f64 {
+        let i = index_for_nm(n, m);
+        self.inner[i][0]
+    }
+
+    fn h(&self, n: usize, m: usize) -> f64 {
+        let i = index_for_nm(n, m);
+        self.inner[i][1]
+    }
+
+    fn g_sv(&self, n: usize, m: usize) -> f64 {
+        let i = index_for_nm(n, m);
+        self.inner[i][2]
+    }
+
+    fn h_sv(&self, n: usize, m: usize) -> f64 {
+        let i = index_for_nm(n, m);
+        self.inner[i][3]
+    }
 }
 
 impl IGRF {
     pub fn new(decimal: f64) -> Option<Self> {
         if !IGRF::is_valid(decimal) {
-            return None
+            return None;
         }
 
-        let n = if decimal < 2000.0 { IGRF_N_1900 } else { IGRF_N_2000 };
-        let iy = IGRF::index_for_year(decimal);
-        let t0 = IGRF::year_from_index(iy);
+        let n = if decimal < 2000.0 {
+            IGRF_N_1900
+        } else {
+            IGRF_N_2000
+        };
+        let iy = index_for_year(decimal);
+        let t0 = year_from_index(iy);
         let inner = IGRF::build(t0, iy, n);
 
         let igrf = IGRF {
+            deg: n,
             t0,
             t: decimal,
             inner,
-            deg: n,
         };
 
         Some(igrf)
@@ -907,7 +961,7 @@ impl IGRF {
 
             for j in 1..=n {
                 for i in 0..=j {
-                    let ii = IGRF::index_for_nm(j, i);
+                    let ii = index_for_nm(j, i);
 
                     let g = IGRF_COEFFICIENTS_G[ii][iy];
                     let h = IGRF_COEFFICIENTS_H[ii][iy];
@@ -920,7 +974,7 @@ impl IGRF {
         } else {
             for j in 1..=n {
                 for i in 0..=j {
-                    let ii = IGRF::index_for_nm(j, i);
+                    let ii = index_for_nm(j, i);
 
                     let g = IGRF_COEFFICIENTS_G[ii][iy];
                     let h = IGRF_COEFFICIENTS_H[ii][iy];
@@ -936,57 +990,5 @@ impl IGRF {
         }
 
         inner
-    }
-
-    fn is_valid(t: f64) -> bool {
-        IGRF_START < t && t < IGRF_END
-    }
-
-    fn index_for_year(t: f64) -> usize {
-        ((t - IGRF_START) / IGRF_EPOCH_INTERVAL).floor() as usize
-    }
-
-    fn year_from_index(i: usize) -> f64 {
-        IGRF_EPOCH_INTERVAL * (i as f64) + IGRF_START
-    }
-}
-
-impl IGRF {
-    fn g(&self, n: usize, m: usize) -> f64 {
-        let i = IGRF::index_for_nm(n, m);
-        self.inner[i][0]
-    }
-
-    fn h(&self, n: usize, m: usize) -> f64 {
-        let i = IGRF::index_for_nm(n, m);
-        self.inner[i][1]
-    }
-
-    fn g_sv(&self, n: usize, m: usize) -> f64 {
-        let i = IGRF::index_for_nm(n, m);
-        self.inner[i][2]
-    }
-
-    fn h_sv(&self, n: usize, m: usize) -> f64 {
-        let i = IGRF::index_for_nm(n, m);
-        self.inner[i][3]
-    }
-}
-
-impl Gauss for IGRF {
-    fn g(&self, n: usize, m: usize) -> f64 {
-        self.g(n, m) + (self.t - self.t0) * self.g_sv(n, m)
-    }
-
-    fn h(&self, n: usize, m: usize) -> f64 {
-        self.h(n, m) + (self.t - self.t0) * self.h_sv(n, m)
-    }
-
-    fn dg(&self, n: usize, m: usize) -> f64 {
-        self.g_sv(n, m)
-    }
-
-    fn dh(&self, n: usize, m: usize) -> f64 {
-        self.h_sv(n, m)
     }
 }

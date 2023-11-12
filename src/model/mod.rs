@@ -4,31 +4,38 @@ pub use wmm::WMM;
 mod igrf;
 mod wmm;
 
-pub trait Gauss {
-    fn index_for_nm(n: usize, m: usize) -> usize {
-        n * (n + 1) / 2 + m - 1
-    }
+pub trait Model {
+    fn is_valid(t: f64) -> bool;
+    fn deg(&self) -> usize;
+    fn t0(&self) -> f64;
+    fn t(&self) -> f64;
+    fn g(&self, n: usize, m: usize) -> f64;
+    fn h(&self, n: usize, m: usize) -> f64;
+    fn g_sv(&self, n: usize, m: usize) -> f64;
+    fn h_sv(&self, n: usize, m: usize) -> f64;
+}
 
+pub trait Gauss {
     fn g(&self, n: usize, m: usize) -> f64;
     fn h(&self, n: usize, m: usize) -> f64;
     fn dg(&self, n: usize, m: usize) -> f64;
     fn dh(&self, n: usize, m: usize) -> f64;
 }
 
-impl Gauss for () {
-    fn g(&self, _: usize, _: usize) -> f64 {
-        unimplemented!();
+impl<T: Model> Gauss for T {
+    fn g(&self, n: usize, m: usize) -> f64 {
+        self.g(n, m) + (self.t() - self.t0()) * self.g_sv(n, m)
     }
 
-    fn h(&self, _: usize, _: usize) -> f64 {
-        unimplemented!();
+    fn h(&self, n: usize, m: usize) -> f64 {
+        self.h(n, m) + (self.t() - self.t0()) * self.h_sv(n, m)
     }
 
-    fn dg(&self, _: usize, _: usize) -> f64 {
-        unimplemented!();
+    fn dg(&self, n: usize, m: usize) -> f64 {
+        self.g_sv(n, m)
     }
 
-    fn dh(&self, _: usize, _: usize) -> f64 {
-        unimplemented!();
+    fn dh(&self, n: usize, m: usize) -> f64 {
+        self.h_sv(n, m)
     }
 }
