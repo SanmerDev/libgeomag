@@ -1,7 +1,8 @@
-use std::fmt::{Display, Formatter};
+use std::fmt;
 use std::ops::Deref;
 
-use chrono::{DateTime as DT, TimeZone, Utc};
+use chrono::{DateTime as DT, LocalResult, TimeZone, Utc};
+use num_traits::FromPrimitive;
 
 use crate::util::DateTimeExt;
 
@@ -12,28 +13,31 @@ pub struct DateTime {
 }
 
 impl DateTime {
-    pub fn new(year: i32, month: i32, day: i32, hour: i32, min: i32, sec: i32) -> Self {
-        let dt = Utc
-            .with_ymd_and_hms(
-                year,
-                month as u32,
-                day as u32,
-                hour as u32,
-                min as u32,
-                sec as u32,
-            )
-            .unwrap();
+    pub fn new(year: i32, month: i32, day: i32, hour: i32, min: i32, sec: i32) -> Option<Self> {
+        let dt = Utc.with_ymd_and_hms(
+            year,
+            u32::from_i32(month)?,
+            u32::from_i32(day)?,
+            u32::from_i32(hour)?,
+            u32::from_i32(min)?,
+            u32::from_i32(sec)?,
+        );
 
-        DateTime {
-            inner: dt,
-            decimal: dt.to_decimal_years(),
-        }
+        let utc = match dt {
+            LocalResult::Single(v) => v,
+            _ => return None,
+        };
+
+        Some(DateTime {
+            inner: utc,
+            decimal: utc.to_decimal_years()?,
+        })
     }
 }
 
-impl Display for DateTime {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.inner)
+impl fmt::Display for DateTime {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.inner.to_string())
     }
 }
 

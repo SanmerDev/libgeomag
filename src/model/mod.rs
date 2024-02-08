@@ -23,18 +23,22 @@ pub trait Gauss {
 }
 
 impl<T: Model> Gauss for T {
+    #[inline]
     fn g(&self, n: usize, m: usize) -> f64 {
         self.g(n, m) + (self.t() - self.t0()) * self.g_sv(n, m)
     }
 
+    #[inline]
     fn h(&self, n: usize, m: usize) -> f64 {
         self.h(n, m) + (self.t() - self.t0()) * self.h_sv(n, m)
     }
 
+    #[inline]
     fn dg(&self, n: usize, m: usize) -> f64 {
         self.g_sv(n, m)
     }
 
+    #[inline]
     fn dh(&self, n: usize, m: usize) -> f64 {
         self.h_sv(n, m)
     }

@@ -5,7 +5,7 @@ mod tests {
     #[test]
     fn wmm() {
         let l = GeodeticLocation::new(102.0, 24.0, 1.9);
-        let t = DateTime::new(2023, 11, 1, 0, 0, 0);
+        let t = DateTime::new(2023, 11, 1, 0, 0, 0).unwrap();
 
         let wmm = WMM::new(t.decimal).unwrap();
         let m = wmm.single(l);
@@ -29,7 +29,7 @@ mod tests {
     #[test]
     fn igrf() {
         let l = GeodeticLocation::new(102.0, 24.0, 1.9);
-        let t = DateTime::new(2023, 11, 1, 0, 0, 0);
+        let t = DateTime::new(2023, 11, 1, 0, 0, 0).unwrap();
 
         let igrf = IGRF::new(t.decimal).unwrap();
         let m = igrf.single(l);
@@ -53,7 +53,7 @@ mod tests {
     #[test]
     fn wmm_at_pole() {
         let l = GeodeticLocation::new(0.0, 90.0, 1.9);
-        let t = DateTime::new(2023, 11, 1, 0, 0, 0);
+        let t = DateTime::new(2023, 11, 1, 0, 0, 0).unwrap();
 
         let wmm = WMM::new(t.decimal).unwrap();
         let m = wmm.single(l);
@@ -77,7 +77,7 @@ mod tests {
     #[test]
     fn igrf_at_pole() {
         let l = GeodeticLocation::new(0.0, 90.0, 1.9);
-        let t = DateTime::new(2023, 11, 1, 0, 0, 0);
+        let t = DateTime::new(2023, 11, 1, 0, 0, 0).unwrap();
 
         let igrf = IGRF::new(t.decimal).unwrap();
         let m = igrf.single(l);

@@ -7,27 +7,38 @@ pub trait MathExt {
 }
 
 impl MathExt for f64 {
+    #[inline]
     fn to_rad(&self) -> f64 {
         (self * PI) / 180.0
     }
 
+    #[inline]
     fn to_deg(&self) -> f64 {
         (self * 180.0) / PI
     }
 }
 
 pub trait DateTimeExt {
-    fn to_decimal_years(&self) -> f64;
+    fn to_decimal_years(&self) -> Option<f64>;
 }
 
 impl<Tz: TimeZone> DateTimeExt for DateTime<Tz> {
-    fn to_decimal_years(&self) -> f64 {
+    fn to_decimal_years(&self) -> Option<f64> {
         let t_year = self.year();
-        let year_days = NaiveDate::from_ymd_opt(t_year, 12, 31).unwrap().ordinal();
-        let t_day = (self.ordinal() - 1) as f64;
+        let t_days = unsafe {
+            NaiveDate::from_ymd_opt(t_year, 12, 31)
+                .unwrap_unchecked()
+                .ordinal()
+        };
+
+        let t_year = f64::from(t_year);
+        let t_day = f64::from(self.ordinal() - 1);
+        let t_days = f64::from(t_days);
 
         let time = self.time();
         let t_seconds = time.num_seconds_from_midnight() + time.nanosecond() / 1_000_000_000;
-        t_year as f64 + (t_day + t_seconds as f64 / 86_400.0) / year_days as f64
+        let t_seconds = f64::from(t_seconds);
+
+        Some(t_year + (t_day + t_seconds / 86_400.0) / t_days)
     }
 }

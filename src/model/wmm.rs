@@ -97,6 +97,7 @@ const WMM_COEFFICIENTS: [[f64; 4]; 90] = [
     [-0.3, 0.5, -0.1, -0.1],
 ];
 
+#[inline]
 fn index_for_nm(n: usize, m: usize) -> usize {
     n * (n + 1) / 2 + m - 1
 }

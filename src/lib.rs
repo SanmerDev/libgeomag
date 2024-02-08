@@ -5,6 +5,7 @@ pub use crate::location::GeodeticLocation;
 use crate::model::{Gauss, Model};
 pub use crate::model::{IGRF, WMM};
 use crate::polynomial::lpmv;
+use num_traits::FromPrimitive;
 
 mod datetime;
 mod field;
@@ -70,13 +71,13 @@ impl<T: Gauss> Calculator<T> {
     }
 
     fn lpmn(&self, n: usize, m: usize, z: f64) -> f64 {
-        let mf = m as f64;
-        let pnm = (-1.0_f64).powf(mf) * lpmv(n, m, z);
+        let m_f = from_usize(m);
+        let pnm = (-1.0_f64).powf(m_f) * lpmv(n, m, z);
 
         if m > 0 {
             let mut d = 1.0;
             for i in (n - m + 1)..=(n + m) {
-                d *= i as f64;
+                d *= from_usize::<f64>(i);
             }
 
             pnm * (2.0 * (1.0 / d)).sqrt()
@@ -96,36 +97,36 @@ impl<T: Gauss> Calculator<T> {
         let pc = p.cos();
 
         for n in 1..=self.deg {
-            let nf = n as f64;
-            let f = (a / r).powf(nf + 2.0);
+            let n_f = from_usize::<f64>(n);
+            let f = (a / r).powf(n_f + 2.0);
 
             for m in 0..=n {
-                let mf = m as f64;
-                let mlc = (mf * l).cos();
-                let mls = (mf * l).sin();
+                let m_f = from_usize::<f64>(m);
+                let m_lc = (m_f * l).cos();
+                let m_ls = (m_f * l).sin();
 
                 let pmn = self.lpmn(n, m, ps);
                 let pmn1 = self.lpmn(n + 1, m, ps);
-                let dmn = (nf + 1.0) * p.tan() * pmn
-                    - ((nf + 1.0).powi(2) - mf.powi(2)).sqrt() / p.cos() * pmn1;
+                let dmn = (n_f + 1.0) * p.tan() * pmn
+                    - ((n_f + 1.0).powi(2) - m_f.powi(2)).sqrt() / p.cos() * pmn1;
 
-                let gcl = self.gauss.g(n, m) * mlc;
-                let gsl = self.gauss.g(n, m) * mls;
-                let hcl = self.gauss.h(n, m) * mlc;
-                let hsl = self.gauss.h(n, m) * mls;
+                let gcl = self.gauss.g(n, m) * m_lc;
+                let gsl = self.gauss.g(n, m) * m_ls;
+                let hcl = self.gauss.h(n, m) * m_lc;
+                let hsl = self.gauss.h(n, m) * m_ls;
 
                 vector.x += -f * (gcl + hsl) * dmn;
-                vector.y += (f / pc) * mf * (gsl - hcl) * pmn;
-                vector.z += -f * (nf + 1.0) * (gcl + hsl) * pmn;
+                vector.y += (f / pc) * m_f * (gsl - hcl) * pmn;
+                vector.z += -f * (n_f + 1.0) * (gcl + hsl) * pmn;
 
-                let d_gcl = self.gauss.dg(n, m) * mlc;
-                let d_gsl = self.gauss.dg(n, m) * mls;
-                let d_hcl = self.gauss.dh(n, m) * mlc;
-                let d_hsl = self.gauss.dh(n, m) * mls;
+                let d_gcl = self.gauss.dg(n, m) * m_lc;
+                let d_gsl = self.gauss.dg(n, m) * m_ls;
+                let d_hcl = self.gauss.dh(n, m) * m_lc;
+                let d_hsl = self.gauss.dh(n, m) * m_ls;
 
                 vector.dx += (-f) * (d_gcl + d_hsl) * dmn;
-                vector.dy += (f / pc) * mf * (d_gsl - d_hcl) * pmn;
-                vector.dz += -f * (nf + 1.0) * (d_gcl + d_hsl) * pmn;
+                vector.dy += (f / pc) * m_f * (d_gsl - d_hcl) * pmn;
+                vector.dz += -f * (n_f + 1.0) * (d_gcl + d_hsl) * pmn;
             }
         }
 
@@ -164,4 +165,9 @@ impl<T: Model> ModelExt for T {
         let xyz = mag.xyz();
         xyz.into()
     }
+}
+
+#[inline]
+pub(crate) fn from_usize<T: FromPrimitive>(v: usize) -> T {
+    unsafe { T::from_usize(v).unwrap_unchecked() }
 }

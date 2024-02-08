@@ -1,4 +1,6 @@
+use crate::from_usize;
 use crate::model::Model;
+use num_traits::FromPrimitive;
 
 const IGRF_EPOCH_INTERVAL: f64 = 5.0;
 const IGRF_START: f64 = 1900.0;
@@ -871,16 +873,20 @@ const IGRF_COEFFICIENTS_H: [[f64; 26]; 104] = [
     ],
 ];
 
+#[inline]
 fn index_for_nm(n: usize, m: usize) -> usize {
     n * (n + 1) / 2 + m - 1
 }
 
+#[inline]
 fn index_for_year(t: f64) -> usize {
-    ((t - IGRF_START) / IGRF_EPOCH_INTERVAL).floor() as usize
+    let v = ((t - IGRF_START) / IGRF_EPOCH_INTERVAL).floor();
+    unsafe { usize::from_f64(v).unwrap_unchecked() }
 }
 
+#[inline]
 fn year_from_index(i: usize) -> f64 {
-    IGRF_EPOCH_INTERVAL * (i as f64) + IGRF_START
+    IGRF_EPOCH_INTERVAL * (from_usize::<f64>(i)) + IGRF_START
 }
 
 pub struct IGRF {
@@ -953,6 +959,7 @@ impl IGRF {
         Some(igrf)
     }
 
+    #[inline]
     pub fn build(t0: f64, iy: usize, n: usize) -> [[f64; 4]; 104] {
         let mut inner = [[0.0; 4]; 104];
 
