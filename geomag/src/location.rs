@@ -30,14 +30,41 @@ impl GeodeticLocation {
 
 #[derive(Debug, Copy, Clone)]
 pub(crate) struct GeocentricLocation {
-    pub inner: GeodeticLocation,
+    pub geodetic: GeodeticLocation,
     pub longitude: f64,
     pub latitude: f64,
     pub radius: f64,
 }
 
-impl From<GeodeticLocation> for GeocentricLocation {
+impl<'a> Into<GeocentricLocation> for &GeodeticLocation {
+    fn into(self) -> GeocentricLocation {
+        let e_2 = F * (2.0 - F);
+        let rc = A / (1.0 - e_2 * self.latitude.sin().powi(2)).sqrt();
+
+        let p = (rc + self.height) * self.latitude.cos();
+        let z = (rc * (1.0 - e_2) + self.height) * self.latitude.sin();
+
+        let r = (p.powi(2) + z.powi(2)).sqrt();
+        let lat = (z / r).asin();
+
+        GeocentricLocation {
+            geodetic: self.to_owned(),
+            longitude: self.longitude,
+            latitude: lat,
+            radius: r,
+        }
+    }
+}
+
+/*
+impl<'a> From<GeodeticLocation> for GeocentricLocation<'a> {
     fn from(l: GeodeticLocation) -> Self {
+        GeocentricLocation::from(&l)
+    }
+}
+
+impl<'a> From<&GeodeticLocation> for GeocentricLocation<'a> {
+    fn from(l: &GeodeticLocation) -> Self {
         let e_2 = F * (2.0 - F);
         let rc = A / (1.0 - e_2 * l.latitude.sin().powi(2)).sqrt();
 
@@ -48,10 +75,12 @@ impl From<GeodeticLocation> for GeocentricLocation {
         let lat = (z / r).asin();
 
         Self {
-            inner: l,
+            geodetic: &*l,
             longitude: l.longitude,
             latitude: lat,
             radius: r,
         }
     }
 }
+
+ */

@@ -1,10 +1,14 @@
+#[cfg(feature = "igrf")]
 pub use igrf::IGRF;
+#[cfg(feature = "wmm")]
 pub use wmm::WMM;
 
+#[cfg(feature = "igrf")]
 mod igrf;
+#[cfg(feature = "wmm")]
 mod wmm;
 
-pub trait Model {
+pub(crate) trait Model {
     fn is_valid(t: f64) -> bool;
     fn deg(&self) -> usize;
     fn t0(&self) -> f64;
@@ -15,7 +19,7 @@ pub trait Model {
     fn h_sv(&self, n: usize, m: usize) -> f64;
 }
 
-pub trait Gauss {
+pub(crate) trait Gauss {
     fn g(&self, n: usize, m: usize) -> f64;
     fn h(&self, n: usize, m: usize) -> f64;
     fn dg(&self, n: usize, m: usize) -> f64;

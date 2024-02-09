@@ -1,3 +1,4 @@
+#[cfg(feature = "chrono")]
 use chrono::{DateTime, Datelike, NaiveDate, TimeZone, Timelike};
 use std::f64::consts::PI;
 
@@ -18,10 +19,12 @@ impl MathExt for f64 {
     }
 }
 
+#[cfg(feature = "chrono")]
 pub trait DateTimeExt {
     fn to_decimal_years(&self) -> Option<f64>;
 }
 
+#[cfg(feature = "chrono")]
 impl<Tz: TimeZone> DateTimeExt for DateTime<Tz> {
     fn to_decimal_years(&self) -> Option<f64> {
         let t_year = self.year();

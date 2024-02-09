@@ -1,4 +1,4 @@
-use libgeomag::{DateTime, GeodeticLocation, ModelExt, IGRF, WMM};
+use geomag::{DateTime, GeodeticLocation, Geomag, IGRF, WMM};
 
 #[test]
 fn wmm() {
@@ -6,7 +6,7 @@ fn wmm() {
     let t = DateTime::new(2023, 11, 1, 0, 0, 0).unwrap();
 
     let wmm = WMM::new(t.decimal).unwrap();
-    let m = wmm.single(l);
+    let m = wmm.at_location(&l);
 
     assert!(m.x - 37637.0 < 1.0);
     assert!(m.x_dot - 4.0 < 1.0);
@@ -30,7 +30,7 @@ fn igrf() {
     let t = DateTime::new(2023, 11, 1, 0, 0, 0).unwrap();
 
     let igrf = IGRF::new(t.decimal).unwrap();
-    let m = igrf.single(l);
+    let m = igrf.at_location(&l);
 
     assert!(m.x - 37634.0 < 1.0);
     assert!(m.x_dot - 1.0 < 1.0);
@@ -54,7 +54,7 @@ fn wmm_at_pole() {
     let t = DateTime::new(2023, 11, 1, 0, 0, 0).unwrap();
 
     let wmm = WMM::new(t.decimal).unwrap();
-    let m = wmm.single(l);
+    let m = wmm.at_location(&l);
 
     assert!(m.x - 1717.0 < 1.0);
     assert!(m.x_dot - (-27.0) < 1.0);
@@ -78,7 +78,7 @@ fn igrf_at_pole() {
     let t = DateTime::new(2023, 11, 1, 0, 0, 0).unwrap();
 
     let igrf = IGRF::new(t.decimal).unwrap();
-    let m = igrf.single(l);
+    let m = igrf.at_location(&l);
 
     assert!(m.x - 1711.0 < 1.0);
     assert!(m.x_dot - (-24.0) < 1.0);

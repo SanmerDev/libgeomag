@@ -1,12 +1,20 @@
+#[cfg(feature = "chrono")]
 pub use crate::datetime::DateTime;
 pub use crate::field::MagneticField;
-use crate::location::GeocentricLocation;
+
 pub use crate::location::GeodeticLocation;
+#[cfg(feature = "igrf")]
+pub use crate::model::IGRF;
+#[cfg(feature = "wmm")]
+pub use crate::model::WMM;
+
+use crate::location::GeocentricLocation;
 use crate::model::{Gauss, Model};
-pub use crate::model::{IGRF, WMM};
 use crate::polynomial::lpmv;
+
 use num_traits::FromPrimitive;
 
+#[cfg(feature = "chrono")]
 mod datetime;
 mod field;
 mod location;
@@ -55,14 +63,14 @@ impl From<Vector> for MagneticField {
     }
 }
 
-struct Calculator<T: Gauss> {
+struct Calculator<'a, T> {
     deg: usize,
-    gauss: T,
-    location: GeocentricLocation,
+    gauss: &'a T,
+    location: &'a GeocentricLocation,
 }
 
-impl<T: Gauss> Calculator<T> {
-    fn new(n: usize, g: T, l: GeocentricLocation) -> Self {
+impl<'a, T: Gauss> Calculator<'a, T> {
+    fn new(n: usize, g: &'a T, l: &'a GeocentricLocation) -> Self {
         Calculator {
             deg: n,
             gauss: g,
@@ -70,6 +78,7 @@ impl<T: Gauss> Calculator<T> {
         }
     }
 
+    #[inline]
     fn lpmn(&self, n: usize, m: usize, z: f64) -> f64 {
         let m_f = from_usize(m);
         let pnm = (-1.0_f64).powf(m_f) * lpmv(n, m, z);
@@ -138,7 +147,7 @@ impl<T: Gauss> Calculator<T> {
         let vector = self.xyz_prime();
 
         let p1 = self.location.latitude;
-        let p = self.location.inner.latitude;
+        let p = self.location.geodetic.latitude;
         let sin_p = (p1 - p).sin();
         let cos_p = (p1 - p).cos();
 
@@ -154,14 +163,17 @@ impl<T: Gauss> Calculator<T> {
     }
 }
 
-pub trait ModelExt {
-    fn single(self, location: GeodeticLocation) -> MagneticField;
+pub trait Geomag {
+    fn at_location(self, l: &GeodeticLocation) -> MagneticField;
 }
 
-impl<T: Model> ModelExt for T {
-    fn single(self, location: GeodeticLocation) -> MagneticField {
-        let l = location.into();
-        let mag = Calculator::new(self.deg(), self, l);
+impl<T> Geomag for &T
+where
+    T: Model,
+{
+    fn at_location(self, l: &GeodeticLocation) -> MagneticField {
+        let l = l.into();
+        let mag = Calculator::new(self.deg(), self, &l);
         let xyz = mag.xyz();
         xyz.into()
     }

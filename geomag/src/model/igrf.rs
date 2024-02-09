@@ -960,7 +960,7 @@ impl IGRF {
     }
 
     #[inline]
-    pub fn build(t0: f64, iy: usize, n: usize) -> [[f64; 4]; 104] {
+    fn build(t0: f64, iy: usize, n: usize) -> [[f64; 4]; 104] {
         let mut inner = [[0.0; 4]; 104];
 
         if t0 == (IGRF_END - IGRF_EPOCH_INTERVAL) {
