@@ -6,6 +6,7 @@ Rust library for calculating geomagnetic field models
 [dependencies.geomag]
 git = "https://github.com/SanmerDev/geomag.git"
 package = "geomag"
+features = ["chrono"]
 ```
 
 ## demo
