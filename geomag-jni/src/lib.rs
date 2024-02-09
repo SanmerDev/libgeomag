@@ -22,7 +22,7 @@ impl<'a> JNI<'a> for JNIEnv<'a> {
             format!("decimal = {decimal}"),
         )
         .unwrap_or_else(|e| {
-            println!("{e}");
+            eprintln!("{e}");
         });
 
         JObject::null()
@@ -34,7 +34,7 @@ impl<'a> JNI<'a> for JNIEnv<'a> {
             Err(err) => {
                 self.throw_new("java/lang/IllegalArgumentException", err.to_string())
                     .unwrap_or_else(|e| {
-                        println!("{e}");
+                        eprintln!("{e}");
                     });
 
                 JObject::null()
