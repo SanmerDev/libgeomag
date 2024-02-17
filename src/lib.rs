@@ -1,6 +1,9 @@
 #![allow(unused_imports)]
 #![no_std]
 
+#[cfg(not(feature = "libm"))]
+extern crate std;
+
 pub use crate::datetime::DateTime;
 pub use crate::field::MagneticField;
 pub use crate::location::GeodeticLocation;

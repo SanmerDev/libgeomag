@@ -1,11 +1,13 @@
-[workspace]
-resolver = "2"
-members = [
-    "geomag",
-    "geomag-jni"
-]
-
-[workspace.package]
+[package]
+name = "geomag"
 version = "0.1.2"
 license = "Apache-2.0"
 edition = "2021"
+
+[dependencies]
+libm = { version = "0.2", optional = true }
+
+[features]
+default = ["igrf", "wmm"]
+igrf = []
+wmm = []
