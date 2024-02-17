@@ -5,7 +5,13 @@ Rust library for calculating geomagnetic field models
 ```toml
 [dependencies.geomag]
 git = "https://github.com/SanmerDev/libgeomag.git"
-# features = ["libm"]    # <--- Uncomment if you don't want `std`
+```
+
+## usage (no-std)
+```toml
+[dependencies.geomag]
+git = "https://github.com/SanmerDev/libgeomag.git"
+features = ["libm"]
 ```
 
 ## demo
