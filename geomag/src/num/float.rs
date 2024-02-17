@@ -107,21 +107,3 @@ impl Float for f64 {
         self.powf(n as f64)
     }
 }
-
-pub trait FloatFrom<T>: Sized {
-    unsafe fn from_unchecked(v: T) -> Self;
-    fn from(v: T) -> Option<Self>;
-}
-
-impl FloatFrom<usize> for f64 {
-    unsafe fn from_unchecked(v: usize) -> Self {
-        v as f64
-    }
-
-    fn from(v: usize) -> Option<Self> {
-        match v {
-            v if v <= (Self::MAX as usize) => Some(unsafe { Self::from_unchecked(v) }),
-            _ => None,
-        }
-    }
-}

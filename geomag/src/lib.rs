@@ -1,11 +1,9 @@
 #![allow(unused_imports)]
 #![no_std]
 
+pub use crate::datetime::DateTime;
 pub use crate::field::MagneticField;
 pub use crate::location::GeodeticLocation;
-
-#[cfg(feature = "chrono")]
-pub use crate::datetime::DateTime;
 
 #[cfg(feature = "igrf")]
 pub use crate::model::IGRF;
@@ -13,13 +11,12 @@ pub use crate::model::IGRF;
 #[cfg(feature = "wmm")]
 pub use crate::model::WMM;
 
-use core::default::Default;
 use crate::location::GeocentricLocation;
 use crate::model::{Gauss, Model};
-use crate::num::{Float, FloatFrom};
+use crate::num::{Float, NumInto};
 use crate::polynomial::lpmv;
+use core::default::Default;
 
-#[cfg(feature = "chrono")]
 mod datetime;
 mod field;
 mod location;
@@ -98,13 +95,13 @@ impl<'a, T: Gauss> Calculator<'a, T> {
 
     #[inline]
     unsafe fn lpmn(&self, n: usize, m: usize, z: f64) -> f64 {
-        let m_f = f64::from_unchecked(m);
+        let m_f = m.to_unchecked();
         let pnm = (-1.0_f64).powf(m_f) * lpmv(n, m, z);
 
         if m > 0 {
             let mut d = 1.0;
             for i in (n - m + 1)..=(n + m) {
-                d *= f64::from_unchecked(i);
+                d *= i.to_unchecked();
             }
 
             pnm * (2.0 * (1.0 / d)).sqrt()
@@ -124,11 +121,11 @@ impl<'a, T: Gauss> Calculator<'a, T> {
         let pc = p.cos();
 
         for n in 1..=self.deg {
-            let n_f = f64::from_unchecked(n);
+            let n_f = n.to_unchecked();
             let f = (a / r).powf(n_f + 2.0);
 
             for m in 0..=n {
-                let m_f = f64::from_unchecked(m);
+                let m_f = m.to_unchecked();
                 let m_lc = (m_f * l).cos();
                 let m_ls = (m_f * l).sin();
 

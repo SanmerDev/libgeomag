@@ -1,18 +1,13 @@
 use geomag::{GeodeticLocation, Geomag, IGRF, WMM};
 
-#[cfg(feature = "chrono")]
 fn get_decimal() -> f64 {
     use geomag::DateTime;
 
     let t = DateTime::new(2023, 11, 1, 0, 0, 0).unwrap();
-    assert_eq!(t.decimal, 2023.8328767123287);
+    let decimal = t.decimal();
+    assert_eq!(decimal, 2023.8328767123287);
 
-    t.decimal
-}
-
-#[cfg(not(feature = "chrono"))]
-fn get_decimal() -> f64 {
-    2023.8328767123287
+    decimal
 }
 
 #[test]

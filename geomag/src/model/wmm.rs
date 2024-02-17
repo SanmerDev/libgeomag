@@ -20,7 +20,7 @@ pub struct WMM {
 
 impl Model for WMM {
     fn is_valid(t: f64) -> bool {
-        WMM_START < t && t < WMM_END
+        WMM_START <= t && t <= WMM_END
     }
 
     fn deg(&self) -> usize {

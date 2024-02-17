@@ -5,7 +5,7 @@ license.workspace = true
 edition.workspace = true
 
 [dependencies]
-geomag = { path = "../geomag", features = ["chrono"] }
+geomag = { path = "../geomag" }
 jni = "0.21.1"
 
 [lib]
