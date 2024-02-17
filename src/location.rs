@@ -1,9 +1,9 @@
+use crate::num::Float;
 use crate::util::MathExt;
 
 const A: f64 = 6378137.0;
 const F: f64 = 1.0 / 298.257223563;
 
-#[derive(Debug, Copy, Clone)]
 pub struct GeodeticLocation {
     pub longitude: f64,
     pub latitude: f64,
@@ -28,7 +28,16 @@ impl GeodeticLocation {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+impl From<&GeodeticLocation> for GeodeticLocation {
+    fn from(l: &GeodeticLocation) -> Self {
+        GeodeticLocation {
+            longitude: l.longitude,
+            latitude: l.latitude,
+            height: l.height,
+        }
+    }
+}
+
 pub(crate) struct GeocentricLocation {
     pub geodetic: GeodeticLocation,
     pub longitude: f64,
@@ -36,34 +45,7 @@ pub(crate) struct GeocentricLocation {
     pub radius: f64,
 }
 
-impl<'a> Into<GeocentricLocation> for &GeodeticLocation {
-    fn into(self) -> GeocentricLocation {
-        let e_2 = F * (2.0 - F);
-        let rc = A / (1.0 - e_2 * self.latitude.sin().powi(2)).sqrt();
-
-        let p = (rc + self.height) * self.latitude.cos();
-        let z = (rc * (1.0 - e_2) + self.height) * self.latitude.sin();
-
-        let r = (p.powi(2) + z.powi(2)).sqrt();
-        let lat = (z / r).asin();
-
-        GeocentricLocation {
-            geodetic: self.to_owned(),
-            longitude: self.longitude,
-            latitude: lat,
-            radius: r,
-        }
-    }
-}
-
-/*
-impl<'a> From<GeodeticLocation> for GeocentricLocation<'a> {
-    fn from(l: GeodeticLocation) -> Self {
-        GeocentricLocation::from(&l)
-    }
-}
-
-impl<'a> From<&GeodeticLocation> for GeocentricLocation<'a> {
+impl From<&GeodeticLocation> for GeocentricLocation {
     fn from(l: &GeodeticLocation) -> Self {
         let e_2 = F * (2.0 - F);
         let rc = A / (1.0 - e_2 * l.latitude.sin().powi(2)).sqrt();
@@ -75,12 +57,10 @@ impl<'a> From<&GeodeticLocation> for GeocentricLocation<'a> {
         let lat = (z / r).asin();
 
         Self {
-            geodetic: &*l,
+            geodetic: l.into(),
             longitude: l.longitude,
             latitude: lat,
             radius: r,
         }
     }
 }
-
- */

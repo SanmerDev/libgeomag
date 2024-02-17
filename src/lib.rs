@@ -1,28 +1,33 @@
-#[cfg(feature = "chrono")]
+#![allow(unused_imports)]
+#![no_std]
+
+#[cfg(not(feature = "libm"))]
+extern crate std;
+
 pub use crate::datetime::DateTime;
 pub use crate::field::MagneticField;
-
 pub use crate::location::GeodeticLocation;
+
 #[cfg(feature = "igrf")]
 pub use crate::model::IGRF;
+
 #[cfg(feature = "wmm")]
 pub use crate::model::WMM;
 
 use crate::location::GeocentricLocation;
 use crate::model::{Gauss, Model};
+use crate::num::{Float, NumInto};
 use crate::polynomial::lpmv;
+use core::default::Default;
 
-use num_traits::FromPrimitive;
-
-#[cfg(feature = "chrono")]
 mod datetime;
 mod field;
 mod location;
 mod model;
+mod num;
 mod polynomial;
 pub mod util;
 
-#[derive(Default)]
 struct Vector {
     x: f64,
     y: f64,
@@ -30,6 +35,19 @@ struct Vector {
     dx: f64,
     dy: f64,
     dz: f64,
+}
+
+impl Default for Vector {
+    fn default() -> Self {
+        Vector {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+            dx: 0.0,
+            dy: 0.0,
+            dz: 0.0,
+        }
+    }
 }
 
 impl From<Vector> for MagneticField {
@@ -79,14 +97,14 @@ impl<'a, T: Gauss> Calculator<'a, T> {
     }
 
     #[inline]
-    fn lpmn(&self, n: usize, m: usize, z: f64) -> f64 {
-        let m_f = from_usize(m);
+    unsafe fn lpmn(&self, n: usize, m: usize, z: f64) -> f64 {
+        let m_f = m.to_unchecked();
         let pnm = (-1.0_f64).powf(m_f) * lpmv(n, m, z);
 
         if m > 0 {
             let mut d = 1.0;
             for i in (n - m + 1)..=(n + m) {
-                d *= from_usize::<f64>(i);
+                d *= i.to_unchecked();
             }
 
             pnm * (2.0 * (1.0 / d)).sqrt()
@@ -95,7 +113,7 @@ impl<'a, T: Gauss> Calculator<'a, T> {
         }
     }
 
-    fn xyz_prime(&self) -> Vector {
+    unsafe fn xyz_prime(&self) -> Vector {
         let mut vector = Vector::default();
 
         let r = self.location.radius;
@@ -106,11 +124,11 @@ impl<'a, T: Gauss> Calculator<'a, T> {
         let pc = p.cos();
 
         for n in 1..=self.deg {
-            let n_f = from_usize::<f64>(n);
+            let n_f = n.to_unchecked();
             let f = (a / r).powf(n_f + 2.0);
 
             for m in 0..=n {
-                let m_f = from_usize::<f64>(m);
+                let m_f = m.to_unchecked();
                 let m_lc = (m_f * l).cos();
                 let m_ls = (m_f * l).sin();
 
@@ -144,7 +162,7 @@ impl<'a, T: Gauss> Calculator<'a, T> {
 
     fn xyz(&self) -> Vector {
         let mut xyz = Vector::default();
-        let vector = self.xyz_prime();
+        let vector = unsafe { self.xyz_prime() };
 
         let p1 = self.location.latitude;
         let p = self.location.geodetic.latitude;
@@ -177,9 +195,4 @@ where
         let xyz = mag.xyz();
         xyz.into()
     }
-}
-
-#[inline]
-pub(crate) fn from_usize<T: FromPrimitive>(v: usize) -> T {
-    unsafe { T::from_usize(v).unwrap_unchecked() }
 }

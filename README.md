@@ -3,10 +3,8 @@ Rust library for calculating geomagnetic field models
 
 ## usage
 ```toml
-[dependencies.geomag]
-git = "https://github.com/SanmerDev/libgeomag.git"
-package = "geomag"
-features = ["chrono"]
+[dependencies]
+geomag = { git = "https://github.com/SanmerDev/libgeomag.git" }
 ```
 
 ## demo
@@ -17,8 +15,8 @@ fn main() {
     let l = GeodeticLocation::new(102.0, 24.0, 1.9);
     let t = DateTime::new(2023, 11, 1, 0, 0, 0).unwrap();
 
-    let wmm = WMM::new(t.decimal).unwrap();
-    let igrf = IGRF::new(t.decimal).unwrap();
+    let wmm = WMM::new(t.decimal()).unwrap();
+    let igrf = IGRF::new(t.decimal()).unwrap();
 
     let m = wmm.at_location(&l);
     println!("{:?}", m);

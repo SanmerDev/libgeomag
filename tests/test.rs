@@ -1,11 +1,19 @@
-use geomag::{DateTime, GeodeticLocation, Geomag, IGRF, WMM};
+use geomag::{GeodeticLocation, Geomag, IGRF, WMM};
+
+fn get_decimal() -> f64 {
+    use geomag::DateTime;
+
+    let t = DateTime::new(2023, 11, 1, 0, 0, 0).unwrap();
+    let decimal = t.decimal();
+    assert_eq!(decimal, 2023.8328767123287);
+
+    decimal
+}
 
 #[test]
 fn wmm() {
     let l = GeodeticLocation::new(102.0, 24.0, 1.9);
-    let t = DateTime::new(2023, 11, 1, 0, 0, 0).unwrap();
-
-    let wmm = WMM::new(t.decimal).unwrap();
+    let wmm = WMM::new(get_decimal()).unwrap();
     let m = wmm.at_location(&l);
 
     assert!(m.x - 37637.0 < 1.0);
@@ -27,9 +35,7 @@ fn wmm() {
 #[test]
 fn igrf() {
     let l = GeodeticLocation::new(102.0, 24.0, 1.9);
-    let t = DateTime::new(2023, 11, 1, 0, 0, 0).unwrap();
-
-    let igrf = IGRF::new(t.decimal).unwrap();
+    let igrf = IGRF::new(get_decimal()).unwrap();
     let m = igrf.at_location(&l);
 
     assert!(m.x - 37634.0 < 1.0);
@@ -51,9 +57,7 @@ fn igrf() {
 #[test]
 fn wmm_at_pole() {
     let l = GeodeticLocation::new(0.0, 90.0, 1.9);
-    let t = DateTime::new(2023, 11, 1, 0, 0, 0).unwrap();
-
-    let wmm = WMM::new(t.decimal).unwrap();
+    let wmm = WMM::new(get_decimal()).unwrap();
     let m = wmm.at_location(&l);
 
     assert!(m.x - 1717.0 < 1.0);
@@ -75,9 +79,7 @@ fn wmm_at_pole() {
 #[test]
 fn igrf_at_pole() {
     let l = GeodeticLocation::new(0.0, 90.0, 1.9);
-    let t = DateTime::new(2023, 11, 1, 0, 0, 0).unwrap();
-
-    let igrf = IGRF::new(t.decimal).unwrap();
+    let igrf = IGRF::new(get_decimal()).unwrap();
     let m = igrf.at_location(&l);
 
     assert!(m.x - 1711.0 < 1.0);

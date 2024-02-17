@@ -4,7 +4,7 @@ const WMM_START: f64 = 2020.0;
 const WMM_END: f64 = 2025.0;
 const WMM_T0: f64 = WMM_START;
 const WMM_N: usize = 12;
-const WMM_COEFFICIENTS: [[f64; 4]; 90] = include!(concat!(env!("OUT_DIR"), "/WMM_COEFFICIENTS"));
+const WMM_COF: [[f64; 4]; 90] = include!(concat!(env!("OUT_DIR"), "/WMM_COF"));
 
 #[inline]
 fn index_for_nm(n: usize, m: usize) -> usize {
@@ -20,7 +20,7 @@ pub struct WMM {
 
 impl Model for WMM {
     fn is_valid(t: f64) -> bool {
-        WMM_START < t && t < WMM_END
+        WMM_START <= t && t <= WMM_END
     }
 
     fn deg(&self) -> usize {
@@ -66,7 +66,7 @@ impl WMM {
             deg: WMM_N,
             t0: WMM_T0,
             t: decimal,
-            inner: WMM_COEFFICIENTS,
+            inner: WMM_COF,
         };
 
         Some(wmm)
