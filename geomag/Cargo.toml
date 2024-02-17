@@ -4,15 +4,9 @@ version.workspace = true
 license.workspace = true
 edition.workspace = true
 
-[dependencies.chrono]
-version = "0.4"
-default-features = false
-optional = true
-
-[dependencies.num-traits]
-version = "0.2"
-default-features = false
-features = ["libm"]
+[dependencies]
+chrono = { version = "0.4", default-features = false, optional = true }
+libm = { version = "0.2", optional = true }
 
 [features]
 default = ["igrf", "wmm"]

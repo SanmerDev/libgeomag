@@ -1,5 +1,4 @@
-use num_traits::Float;
-
+use crate::num::Float;
 use crate::util::MathExt;
 
 const A: f64 = 6378137.0;

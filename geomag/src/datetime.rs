@@ -1,7 +1,7 @@
 use core::ops::Deref;
 
+use crate::num::IntFrom;
 use chrono::{DateTime as DT, LocalResult, TimeZone, Utc};
-use num_traits::FromPrimitive;
 
 use crate::util::DateTimeExt;
 
@@ -14,11 +14,11 @@ impl DateTime {
     pub fn new(year: i32, month: i32, day: i32, hour: i32, min: i32, sec: i32) -> Option<Self> {
         let dt = Utc.with_ymd_and_hms(
             year,
-            u32::from_i32(month)?,
-            u32::from_i32(day)?,
-            u32::from_i32(hour)?,
-            u32::from_i32(min)?,
-            u32::from_i32(sec)?,
+            IntFrom::from(month)?,
+            IntFrom::from(day)?,
+            IntFrom::from(hour)?,
+            IntFrom::from(min)?,
+            IntFrom::from(sec)?,
         );
 
         let utc = match dt {
