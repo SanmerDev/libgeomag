@@ -64,13 +64,13 @@ impl DateTime {
             let all_d = all_days * 24_f64 * 60_f64 * 60_f64;
 
             let days = self.days() - 1;
-            let days_d = days.to_unchecked() * 24_f64 * 60_f64 * 60_f64;
-            let hour_d = self.hour.to_unchecked() * 60_f64 * 60_f64;
-            let min_d = self.min.to_unchecked() * 60_f64;
-            let now_d = days_d + hour_d + min_d + self.sec.to_unchecked();
+            let days_d = days.try_into_unchecked() * 24_f64 * 60_f64 * 60_f64;
+            let hour_d = self.hour.try_into_unchecked() * 60_f64 * 60_f64;
+            let min_d = self.min.try_into_unchecked() * 60_f64;
+            let now_d = days_d + hour_d + min_d + self.sec.try_into_unchecked();
 
             let d = now_d / all_d;
-            self.year.to_unchecked() + d
+            self.year.try_into_unchecked() + d
         }
     }
 }

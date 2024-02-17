@@ -17,12 +17,12 @@ fn index_for_nm(n: usize, m: usize) -> usize {
 #[inline]
 fn index_for_year(t: f64) -> usize {
     let v = ((t - IGRF_START) / IGRF_EPOCH_INTERVAL).floor();
-    unsafe { v.to_unchecked() }
+    unsafe { v.try_into_unchecked() }
 }
 
 #[inline]
 fn year_from_index(i: usize) -> f64 {
-    unsafe { IGRF_EPOCH_INTERVAL * i.to_unchecked() + IGRF_START }
+    unsafe { IGRF_EPOCH_INTERVAL * i.try_into_unchecked() + IGRF_START }
 }
 
 pub struct IGRF {

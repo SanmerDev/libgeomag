@@ -98,13 +98,13 @@ impl<'a, T: Gauss> Calculator<'a, T> {
 
     #[inline]
     unsafe fn lpmn(&self, n: usize, m: usize, z: f64) -> f64 {
-        let m_f = m.to_unchecked();
+        let m_f = m.try_into_unchecked();
         let pnm = (-1.0_f64).powf(m_f) * lpmv(n, m, z);
 
         if m > 0 {
             let mut d = 1.0;
             for i in (n - m + 1)..=(n + m) {
-                d *= i.to_unchecked();
+                d *= i.try_into_unchecked();
             }
 
             pnm * (2.0 * (1.0 / d)).sqrt()
@@ -124,11 +124,11 @@ impl<'a, T: Gauss> Calculator<'a, T> {
         let pc = p.cos();
 
         for n in 1..=self.deg {
-            let n_f = n.to_unchecked();
+            let n_f = n.try_into_unchecked();
             let f = (a / r).powf(n_f + 2.0);
 
             for m in 0..=n {
-                let m_f = m.to_unchecked();
+                let m_f = m.try_into_unchecked();
                 let m_lc = (m_f * l).cos();
                 let m_ls = (m_f * l).sin();
 
