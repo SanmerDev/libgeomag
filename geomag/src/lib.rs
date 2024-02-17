@@ -1,18 +1,23 @@
+#![no_std]
+
+use num_traits::Float;
+use num_traits::FromPrimitive;
+
+pub use crate::field::MagneticField;
+pub use crate::location::GeodeticLocation;
+
 #[cfg(feature = "chrono")]
 pub use crate::datetime::DateTime;
-pub use crate::field::MagneticField;
 
-pub use crate::location::GeodeticLocation;
 #[cfg(feature = "igrf")]
 pub use crate::model::IGRF;
+
 #[cfg(feature = "wmm")]
 pub use crate::model::WMM;
 
 use crate::location::GeocentricLocation;
 use crate::model::{Gauss, Model};
 use crate::polynomial::lpmv;
-
-use num_traits::FromPrimitive;
 
 #[cfg(feature = "chrono")]
 mod datetime;

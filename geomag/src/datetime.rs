@@ -1,12 +1,10 @@
-use std::fmt;
-use std::ops::Deref;
+use core::ops::Deref;
 
 use chrono::{DateTime as DT, LocalResult, TimeZone, Utc};
 use num_traits::FromPrimitive;
 
 use crate::util::DateTimeExt;
 
-#[derive(Copy, Clone)]
 pub struct DateTime {
     inner: DT<Utc>,
     pub decimal: f64,
@@ -32,12 +30,6 @@ impl DateTime {
             inner: utc,
             decimal: utc.to_decimal_years()?,
         })
-    }
-}
-
-impl fmt::Display for DateTime {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(&self.inner.to_string())
     }
 }
 

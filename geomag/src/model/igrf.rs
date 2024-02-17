@@ -1,16 +1,16 @@
+use num_traits::Float;
+use num_traits::FromPrimitive;
+
 use crate::from_usize;
 use crate::model::Model;
-use num_traits::FromPrimitive;
 
 const IGRF_EPOCH_INTERVAL: f64 = 5.0;
 const IGRF_START: f64 = 1900.0;
 const IGRF_END: f64 = 2025.0;
 const IGRF_N_1900: usize = 10;
 const IGRF_N_2000: usize = 13;
-const IGRF_COEFFICIENTS_G: [[f64; 26]; 104] =
-    include!(concat!(env!("OUT_DIR"), "/IGRF_COEFFICIENTS_G"));
-const IGRF_COEFFICIENTS_H: [[f64; 26]; 104] =
-    include!(concat!(env!("OUT_DIR"), "/IGRF_COEFFICIENTS_H"));
+const IGRF_COF_G: [[f64; 26]; 104] = include!(concat!(env!("OUT_DIR"), "/IGRF_COF_G"));
+const IGRF_COF_H: [[f64; 26]; 104] = include!(concat!(env!("OUT_DIR"), "/IGRF_COF_H"));
 
 #[inline]
 fn index_for_nm(n: usize, m: usize) -> usize {
@@ -103,16 +103,16 @@ impl IGRF {
         let mut inner = [[0.0; 4]; 104];
 
         if t0 == (IGRF_END - IGRF_EPOCH_INTERVAL) {
-            let il = IGRF_COEFFICIENTS_G[0].len() - 1;
+            let il = IGRF_COF_G[0].len() - 1;
 
             for j in 1..=n {
                 for i in 0..=j {
                     let ii = index_for_nm(j, i);
 
-                    let g = IGRF_COEFFICIENTS_G[ii][iy];
-                    let h = IGRF_COEFFICIENTS_H[ii][iy];
-                    let g_sv = IGRF_COEFFICIENTS_G[ii][il];
-                    let h_sv = IGRF_COEFFICIENTS_H[ii][il];
+                    let g = IGRF_COF_G[ii][iy];
+                    let h = IGRF_COF_H[ii][iy];
+                    let g_sv = IGRF_COF_G[ii][il];
+                    let h_sv = IGRF_COF_H[ii][il];
 
                     inner[ii] = [g, h, g_sv, h_sv];
                 }
@@ -122,10 +122,10 @@ impl IGRF {
                 for i in 0..=j {
                     let ii = index_for_nm(j, i);
 
-                    let g = IGRF_COEFFICIENTS_G[ii][iy];
-                    let h = IGRF_COEFFICIENTS_H[ii][iy];
-                    let gl = IGRF_COEFFICIENTS_G[ii][iy + 1];
-                    let hl = IGRF_COEFFICIENTS_H[ii][iy + 1];
+                    let g = IGRF_COF_G[ii][iy];
+                    let h = IGRF_COF_H[ii][iy];
+                    let gl = IGRF_COF_G[ii][iy + 1];
+                    let hl = IGRF_COF_H[ii][iy + 1];
 
                     let g_sv = (gl - g) / 5.0;
                     let h_sv = (hl - h) / 5.0;

@@ -73,9 +73,9 @@ fn main() {
     let data_dir = Path::new("data");
 
     let wmm = parse_wmm(data_dir.join("WMM.COF"));
-    vec_to_out(wmm, "WMM_COEFFICIENTS");
+    vec_to_out(wmm, "WMM_COF");
 
     let (igrf_g, igrf_h) = parse_igrf(data_dir.join("IGRF.COF"));
-    vec_to_out(igrf_g, "IGRF_COEFFICIENTS_G");
-    vec_to_out(igrf_h, "IGRF_COEFFICIENTS_H");
+    vec_to_out(igrf_g, "IGRF_COF_G");
+    vec_to_out(igrf_h, "IGRF_COF_H");
 }

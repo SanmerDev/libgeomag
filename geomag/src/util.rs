@@ -1,6 +1,6 @@
 #[cfg(feature = "chrono")]
 use chrono::{DateTime, Datelike, NaiveDate, TimeZone, Timelike};
-use std::f64::consts::PI;
+use core::f64::consts::PI;
 
 pub trait MathExt {
     fn to_rad(&self) -> f64;

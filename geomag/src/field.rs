@@ -1,4 +1,3 @@
-#[derive(Debug, Copy, Clone)]
 pub struct MagneticField {
     pub x: f64,
     pub x_dot: f64,

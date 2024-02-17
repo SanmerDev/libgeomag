@@ -1,4 +1,5 @@
 use crate::from_usize;
+use num_traits::Float;
 
 ///## References
 ///* [Zhang, Jin, “Computation of Special Functions”, John Wiley and Sons, Inc, 1996](https://people.sc.fsu.edu/~jburkardt/f77_src/special_functions/special_functions.html)
