@@ -30,7 +30,6 @@ impl GeodeticLocation {
 }
 
 pub(crate) struct GeocentricLocation {
-    pub geodetic: GeodeticLocation,
     pub longitude: f64,
     pub latitude: f64,
     pub radius: f64,
@@ -47,8 +46,7 @@ impl From<&GeodeticLocation> for GeocentricLocation {
         let r = (p.powi(2) + z.powi(2)).sqrt();
         let lat = (z / r).asin();
 
-        Self {
-            geodetic: *l,
+        GeocentricLocation {
             longitude: l.longitude,
             latitude: lat,
             radius: r,

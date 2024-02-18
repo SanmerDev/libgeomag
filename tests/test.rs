@@ -1,8 +1,6 @@
-use geomag::{GeodeticLocation, Geomag, IGRF, WMM};
+use geomag::{DateTime, GeodeticLocation, Geomag, IGRF, WMM};
 
 fn get_decimal() -> f64 {
-    use geomag::DateTime;
-
     let t = DateTime::new(2023, 11, 1, 0, 0, 0).unwrap();
     let decimal = t.decimal();
     assert_eq!(decimal, 2023.8328767123287);

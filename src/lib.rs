@@ -23,7 +23,7 @@ mod polynomial;
 pub mod util;
 
 #[derive(Default)]
-struct Vector {
+pub(crate) struct Vector {
     x: f64,
     y: f64,
     z: f64,
@@ -63,18 +63,28 @@ impl From<Vector> for MagneticField {
     }
 }
 
-struct Calculator<'a, T> {
+pub(crate) struct Calculator<'a, T>
+where
+    T: Gauss,
+{
     deg: usize,
     gauss: &'a T,
-    location: &'a GeocentricLocation,
+    geocentric: &'a GeocentricLocation,
+    geodetic: &'a GeodeticLocation,
 }
 
 impl<'a, T: Gauss> Calculator<'a, T> {
-    fn new(n: usize, g: &'a T, l: &'a GeocentricLocation) -> Self {
+    pub(crate) fn new(
+        deg: usize,
+        gauss: &'a T,
+        geocentric: &'a GeocentricLocation,
+        geodetic: &'a GeodeticLocation,
+    ) -> Self {
         Calculator {
-            deg: n,
-            gauss: g,
-            location: l,
+            deg,
+            gauss,
+            geocentric,
+            geodetic,
         }
     }
 
@@ -96,14 +106,15 @@ impl<'a, T: Gauss> Calculator<'a, T> {
     }
 
     unsafe fn xyz_prime(&self) -> Vector {
-        let mut vector = Vector::default();
+        let mut prime = Vector::default();
 
-        let r = self.location.radius;
-        let p = self.location.latitude;
-        let l = self.location.longitude;
+        let r = self.geocentric.radius;
+        let p = self.geocentric.latitude;
+        let l = self.geocentric.longitude;
         let a = 6371200.0_f64;
-        let ps = p.sin();
-        let pc = p.cos();
+
+        let sin_p = p.sin();
+        let cos_p = p.cos();
 
         for n in 1..=self.deg {
             let n_f = n.try_into_unchecked();
@@ -111,69 +122,73 @@ impl<'a, T: Gauss> Calculator<'a, T> {
 
             for m in 0..=n {
                 let m_f = m.try_into_unchecked();
-                let m_lc = (m_f * l).cos();
-                let m_ls = (m_f * l).sin();
+                let cos_ml = (m_f * l).cos();
+                let sin_ml = (m_f * l).sin();
 
-                let pmn = self.lpmn(n, m, ps);
-                let pmn1 = self.lpmn(n + 1, m, ps);
+                let pmn = self.lpmn(n, m, sin_p);
+                let pmn1 = self.lpmn(n + 1, m, sin_p);
                 let dmn = (n_f + 1.0) * p.tan() * pmn
                     - ((n_f + 1.0).powi(2) - m_f.powi(2)).sqrt() / p.cos() * pmn1;
 
-                let gcl = self.gauss.g(n, m) * m_lc;
-                let gsl = self.gauss.g(n, m) * m_ls;
-                let hcl = self.gauss.h(n, m) * m_lc;
-                let hsl = self.gauss.h(n, m) * m_ls;
+                let g = self.gauss.g(n, m);
+                let h = self.gauss.h(n, m);
+                let g_cos_ml = g * cos_ml;
+                let g_sin_ml = g * sin_ml;
+                let h_cos_ml = h * cos_ml;
+                let h_sin_ml = h * sin_ml;
 
-                vector.x += -f * (gcl + hsl) * dmn;
-                vector.y += (f / pc) * m_f * (gsl - hcl) * pmn;
-                vector.z += -f * (n_f + 1.0) * (gcl + hsl) * pmn;
+                prime.x += -f * (g_cos_ml + h_sin_ml) * dmn;
+                prime.y += (f / cos_p) * m_f * (g_sin_ml - h_cos_ml) * pmn;
+                prime.z += -f * (n_f + 1.0) * (g_cos_ml + h_sin_ml) * pmn;
 
-                let d_gcl = self.gauss.dg(n, m) * m_lc;
-                let d_gsl = self.gauss.dg(n, m) * m_ls;
-                let d_hcl = self.gauss.dh(n, m) * m_lc;
-                let d_hsl = self.gauss.dh(n, m) * m_ls;
+                let dg = self.gauss.dg(n, m);
+                let dh = self.gauss.dh(n, m);
+                let dg_cos_ml = dg * cos_ml;
+                let dg_sin_ml = dg * sin_ml;
+                let dh_cos_ml = dh * cos_ml;
+                let dh_sin_ml = dh * sin_ml;
 
-                vector.dx += (-f) * (d_gcl + d_hsl) * dmn;
-                vector.dy += (f / pc) * m_f * (d_gsl - d_hcl) * pmn;
-                vector.dz += -f * (n_f + 1.0) * (d_gcl + d_hsl) * pmn;
+                prime.dx += (-f) * (dg_cos_ml + dh_sin_ml) * dmn;
+                prime.dy += (f / cos_p) * m_f * (dg_sin_ml - dh_cos_ml) * pmn;
+                prime.dz += -f * (n_f + 1.0) * (dg_cos_ml + dh_sin_ml) * pmn;
             }
         }
 
-        vector
+        prime
     }
 
-    fn xyz(&self) -> Vector {
+    pub(crate) fn xyz(&self) -> Vector {
         let mut xyz = Vector::default();
-        let vector = unsafe { self.xyz_prime() };
+        let prime = unsafe { self.xyz_prime() };
 
-        let p1 = self.location.latitude;
-        let p = self.location.geodetic.latitude;
+        let p1 = self.geocentric.latitude;
+        let p = self.geodetic.latitude;
         let sin_p = (p1 - p).sin();
         let cos_p = (p1 - p).cos();
 
-        xyz.x = vector.x * cos_p - vector.z * sin_p;
-        xyz.y = vector.y;
-        xyz.z = vector.x * sin_p + vector.z * cos_p;
+        xyz.x = prime.x * cos_p - prime.z * sin_p;
+        xyz.y = prime.y;
+        xyz.z = prime.x * sin_p + prime.z * cos_p;
 
-        xyz.dx = vector.dx * cos_p - vector.dz * sin_p;
-        xyz.dy = vector.dy;
-        xyz.dz = vector.dx * sin_p + vector.dz * cos_p;
+        xyz.dx = prime.dx * cos_p - prime.dz * sin_p;
+        xyz.dy = prime.dy;
+        xyz.dz = prime.dx * sin_p + prime.dz * cos_p;
 
         xyz
     }
 }
 
 pub trait Geomag {
-    fn at_location(self, l: &GeodeticLocation) -> MagneticField;
+    fn at_location(self, geodetic: &GeodeticLocation) -> MagneticField;
 }
 
 impl<T> Geomag for &T
 where
     T: Model,
 {
-    fn at_location(self, l: &GeodeticLocation) -> MagneticField {
-        let l = l.into();
-        let mag = Calculator::new(self.deg(), self, &l);
+    fn at_location(self, geodetic: &GeodeticLocation) -> MagneticField {
+        let geocentric = GeocentricLocation::from(geodetic);
+        let mag = Calculator::new(self.deg(), self, &geocentric, geodetic);
         let xyz = mag.xyz();
         xyz.into()
     }
