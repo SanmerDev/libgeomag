@@ -4,6 +4,7 @@ use crate::util::MathExt;
 const A: f64 = 6378137.0;
 const F: f64 = 1.0 / 298.257223563;
 
+#[derive(Debug, Copy, Clone)]
 pub struct GeodeticLocation {
     pub longitude: f64,
     pub latitude: f64,
@@ -28,16 +29,6 @@ impl GeodeticLocation {
     }
 }
 
-impl From<&GeodeticLocation> for GeodeticLocation {
-    fn from(l: &GeodeticLocation) -> Self {
-        GeodeticLocation {
-            longitude: l.longitude,
-            latitude: l.latitude,
-            height: l.height,
-        }
-    }
-}
-
 pub(crate) struct GeocentricLocation {
     pub geodetic: GeodeticLocation,
     pub longitude: f64,
@@ -57,7 +48,7 @@ impl From<&GeodeticLocation> for GeocentricLocation {
         let lat = (z / r).asin();
 
         Self {
-            geodetic: l.into(),
+            geodetic: *l,
             longitude: l.longitude,
             latitude: lat,
             radius: r,

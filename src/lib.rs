@@ -1,16 +1,11 @@
 #![allow(unused_imports)]
-#![no_std]
-
-#[cfg(not(feature = "libm"))]
-extern crate std;
+#![cfg_attr(feature = "libm", no_std)]
 
 pub use crate::datetime::DateTime;
 pub use crate::field::MagneticField;
 pub use crate::location::GeodeticLocation;
-
 #[cfg(feature = "igrf")]
 pub use crate::model::IGRF;
-
 #[cfg(feature = "wmm")]
 pub use crate::model::WMM;
 
@@ -18,7 +13,6 @@ use crate::location::GeocentricLocation;
 use crate::model::{Gauss, Model};
 use crate::num::{Float, NumInto};
 use crate::polynomial::lpmv;
-use core::default::Default;
 
 mod datetime;
 mod field;
@@ -28,6 +22,7 @@ mod num;
 mod polynomial;
 pub mod util;
 
+#[derive(Default)]
 struct Vector {
     x: f64,
     y: f64,
@@ -35,19 +30,6 @@ struct Vector {
     dx: f64,
     dy: f64,
     dz: f64,
-}
-
-impl Default for Vector {
-    fn default() -> Self {
-        Vector {
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
-            dx: 0.0,
-            dy: 0.0,
-            dz: 0.0,
-        }
-    }
 }
 
 impl From<Vector> for MagneticField {

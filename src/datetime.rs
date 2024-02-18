@@ -8,13 +8,14 @@ macro_rules! is_valid {
     };
 }
 
+#[derive(Debug, Copy, Clone)]
 pub struct DateTime {
-    year: u32,
-    month: u32,
-    day: u32,
-    hour: u32,
-    min: u32,
-    sec: u32,
+    pub year: u32,
+    pub month: u32,
+    pub day: u32,
+    pub hour: u32,
+    pub min: u32,
+    pub sec: u32,
 }
 
 impl DateTime {
@@ -41,14 +42,10 @@ impl DateTime {
         is_leap_year(self.year)
     }
 
-    pub fn month_days(&self) -> u32 {
-        unsafe { month_days(self.month, self.is_leap_year()) }
-    }
-
     pub fn days(&self) -> u32 {
         let leap = self.is_leap_year();
         let days: u32 = (1..self.month)
-            .map(|m| unsafe { month_days(m, leap) })
+            .map(|m| unsafe { days_of_month(m, leap) })
             .sum();
 
         days + self.day
@@ -89,7 +86,7 @@ fn is_leap_year(year: u32) -> bool {
 }
 
 #[inline]
-unsafe fn month_days(month: u32, leap: bool) -> u32 {
+unsafe fn days_of_month(month: u32, leap: bool) -> u32 {
     match month {
         1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
         4 | 6 | 9 | 11 => 30,

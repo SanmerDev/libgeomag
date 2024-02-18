@@ -45,6 +45,7 @@ impl Float for f64 {
         self.atan()
     }
 
+    #[inline]
     fn sqrt(self) -> Self {
         self.sqrt()
     }

@@ -10,18 +10,18 @@ const IGRF_COF_G: [[f64; 26]; 104] = include!(concat!(env!("OUT_DIR"), "/IGRF_CO
 const IGRF_COF_H: [[f64; 26]; 104] = include!(concat!(env!("OUT_DIR"), "/IGRF_COF_H"));
 
 #[inline]
-fn index_for_nm(n: usize, m: usize) -> usize {
+fn nm_to_index(n: usize, m: usize) -> usize {
     n * (n + 1) / 2 + m - 1
 }
 
 #[inline]
-fn index_for_year(t: f64) -> usize {
+fn year_to_index(t: f64) -> usize {
     let v = ((t - IGRF_START) / IGRF_EPOCH_INTERVAL).floor();
     unsafe { v.try_into_unchecked() }
 }
 
 #[inline]
-fn year_from_index(i: usize) -> f64 {
+fn index_to_year(i: usize) -> f64 {
     unsafe { IGRF_EPOCH_INTERVAL * i.try_into_unchecked() + IGRF_START }
 }
 
@@ -50,22 +50,22 @@ impl Model for IGRF {
     }
 
     fn g(&self, n: usize, m: usize) -> f64 {
-        let i = index_for_nm(n, m);
+        let i = nm_to_index(n, m);
         self.inner[i][0]
     }
 
     fn h(&self, n: usize, m: usize) -> f64 {
-        let i = index_for_nm(n, m);
+        let i = nm_to_index(n, m);
         self.inner[i][1]
     }
 
     fn g_sv(&self, n: usize, m: usize) -> f64 {
-        let i = index_for_nm(n, m);
+        let i = nm_to_index(n, m);
         self.inner[i][2]
     }
 
     fn h_sv(&self, n: usize, m: usize) -> f64 {
-        let i = index_for_nm(n, m);
+        let i = nm_to_index(n, m);
         self.inner[i][3]
     }
 }
@@ -81,18 +81,17 @@ impl IGRF {
         } else {
             IGRF_N_2000
         };
-        let iy = index_for_year(decimal);
-        let t0 = year_from_index(iy);
+
+        let iy = year_to_index(decimal);
+        let t0 = index_to_year(iy);
         let inner = IGRF::build(t0, iy, n);
 
-        let igrf = IGRF {
+        Some(IGRF {
             deg: n,
             t0,
             t: decimal,
             inner,
-        };
-
-        Some(igrf)
+        })
     }
 
     #[inline]
@@ -104,7 +103,7 @@ impl IGRF {
 
             for j in 1..=n {
                 for i in 0..=j {
-                    let ii = index_for_nm(j, i);
+                    let ii = nm_to_index(j, i);
 
                     let g = IGRF_COF_G[ii][iy];
                     let h = IGRF_COF_H[ii][iy];
@@ -117,7 +116,7 @@ impl IGRF {
         } else {
             for j in 1..=n {
                 for i in 0..=j {
-                    let ii = index_for_nm(j, i);
+                    let ii = nm_to_index(j, i);
 
                     let g = IGRF_COF_G[ii][iy];
                     let h = IGRF_COF_H[ii][iy];
