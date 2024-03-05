@@ -20,6 +20,7 @@ fn vec_to_out<P: AsRef<Path>>(v: Vec<Vec<f64>>, file: P) {
         .unwrap();
 }
 
+#[cfg(feature = "wmm")]
 fn parse_wmm<P: AsRef<Path>>(p: P) -> Vec<Vec<f64>> {
     let constant = fs::read_to_string(p).unwrap();
     constant
@@ -31,6 +32,7 @@ fn parse_wmm<P: AsRef<Path>>(p: P) -> Vec<Vec<f64>> {
         .collect()
 }
 
+#[cfg(feature = "igrf")]
 fn parse_igrf<P: AsRef<Path>>(p: P) -> (Vec<Vec<f64>>, Vec<Vec<f64>>) {
     let constant = fs::read_to_string(p).unwrap();
     let constant: Vec<Vec<&str>> = constant
@@ -72,10 +74,16 @@ fn parse_igrf<P: AsRef<Path>>(p: P) -> (Vec<Vec<f64>>, Vec<Vec<f64>>) {
 fn main() {
     let data_dir = Path::new("data");
 
-    let wmm = parse_wmm(data_dir.join("WMM.COF"));
-    vec_to_out(wmm, "WMM_COF");
+    #[cfg(feature = "wmm")]
+    {
+        let wmm = parse_wmm(data_dir.join("WMM.COF"));
+        vec_to_out(wmm, "WMM_COF");
+    }
 
-    let (igrf_g, igrf_h) = parse_igrf(data_dir.join("IGRF.COF"));
-    vec_to_out(igrf_g, "IGRF_COF_G");
-    vec_to_out(igrf_h, "IGRF_COF_H");
+    #[cfg(feature = "igrf")]
+    {
+        let (igrf_g, igrf_h) = parse_igrf(data_dir.join("IGRF.COF"));
+        vec_to_out(igrf_g, "IGRF_COF_G");
+        vec_to_out(igrf_h, "IGRF_COF_H");
+    }
 }
