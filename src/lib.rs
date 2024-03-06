@@ -4,23 +4,18 @@
 pub use crate::datetime::DateTime;
 pub use crate::field::MagneticField;
 pub use crate::location::GeodeticLocation;
-#[cfg(feature = "igrf")]
-pub use crate::model::IGRF;
-#[cfg(feature = "wmm")]
-pub use crate::model::WMM;
 
 use crate::location::GeocentricLocation;
 use crate::model::{Gauss, Model};
-use crate::num::{Float, NumInto};
+use crate::num::{Float, NumInto, Unit};
 use crate::polynomial::lpmv;
 
 mod datetime;
 mod field;
 mod location;
-mod model;
-mod num;
+pub mod model;
+pub mod num;
 mod polynomial;
-pub mod util;
 
 #[derive(Default)]
 pub(crate) struct Vector {
@@ -55,10 +50,10 @@ impl From<Vector> for MagneticField {
             h_dot: dh,
             f,
             f_dot: df,
-            d,
-            d_dot: dd,
-            i,
-            i_dot: di,
+            d: d.rad(),
+            d_dot: dd.rad(),
+            i: i.rad(),
+            i_dot: di.rad(),
         }
     }
 }

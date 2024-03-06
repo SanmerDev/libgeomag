@@ -1,3 +1,5 @@
+use crate::num::Rad;
+
 #[derive(Debug, Copy, Clone)]
 pub struct MagneticField {
     pub x: f64,
@@ -10,8 +12,8 @@ pub struct MagneticField {
     pub h_dot: f64,
     pub f: f64,
     pub f_dot: f64,
-    pub d: f64,
-    pub d_dot: f64,
-    pub i: f64,
-    pub i_dot: f64,
+    pub d: Rad,
+    pub d_dot: Rad,
+    pub i: Rad,
+    pub i_dot: Rad,
 }
