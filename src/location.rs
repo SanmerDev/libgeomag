@@ -1,4 +1,4 @@
-use crate::num::{Degree, Float, Angle};
+use crate::num::{Angle, Degree, Float};
 
 const A: f64 = 6378137.0;
 const F: f64 = 1.0 / 298.257223563;

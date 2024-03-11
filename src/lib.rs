@@ -7,7 +7,7 @@ pub use crate::location::GeodeticLocation;
 
 use crate::location::GeocentricLocation;
 use crate::model::{Gauss, Model};
-use crate::num::{Float, NumInto, Angle};
+use crate::num::{Angle, Float, NumInto};
 use crate::polynomial::lpmv;
 
 mod datetime;
