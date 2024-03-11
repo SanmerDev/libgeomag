@@ -1,8 +1,8 @@
+pub use angle::{Angle, Degree, Radian};
 pub(crate) use float::Float;
-pub use unit::{Deg, Rad, Unit};
 
 mod float;
-mod unit;
+mod angle;
 
 pub(crate) trait NumInto<T>: Sized {
     unsafe fn try_into_unchecked(self) -> T;

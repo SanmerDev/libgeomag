@@ -1,5 +1,5 @@
 use geomag::model::{IGRF, WMM};
-use geomag::num::Unit;
+use geomag::num::Angle;
 use geomag::{DateTime, GeodeticLocation, Geomag};
 
 fn get_decimal() -> f64 {
@@ -26,10 +26,10 @@ fn wmm() {
     assert!(m.h_dot - 5.0 < 1.0);
     assert!(m.f - 47420.0 < 1.0);
     assert!(m.f_dot - 69.0 < 1.0);
-    assert!(m.d.v() - (-0.02) < 0.01);
-    assert!(m.d_dot.v() - (-0.001) < 0.001);
-    assert!(m.i.v() - 0.6 < 0.1);
-    assert!(m.i_dot.v() - 0.001 < 0.001);
+    assert!(m.d.f() - (-0.02) < 0.01);
+    assert!(m.d_dot.f() - (-0.001) < 0.001);
+    assert!(m.i.f() - 0.6 < 0.1);
+    assert!(m.i_dot.f() - 0.001 < 0.001);
 }
 
 #[test]
@@ -48,10 +48,10 @@ fn igrf() {
     assert!(m.h_dot - 2.0 < 1.0);
     assert!(m.f - 47430.0 < 1.0);
     assert!(m.f_dot - 70.0 < 1.0);
-    assert!(m.d.v() - (-0.02) < 0.01);
-    assert!(m.d_dot.v() - (-0.001) < 0.001);
-    assert!(m.i.v() - 0.6 < 0.1);
-    assert!(m.i_dot.v() - 0.001 < 0.001);
+    assert!(m.d.f() - (-0.02) < 0.01);
+    assert!(m.d_dot.f() - (-0.001) < 0.001);
+    assert!(m.i.f() - 0.6 < 0.1);
+    assert!(m.i_dot.f() - 0.001 < 0.001);
 }
 
 #[test]
@@ -70,10 +70,10 @@ fn wmm_at_pole() {
     assert!(m.h_dot - (-14.0) < 1.0);
     assert!(m.f - 56803.0 < 1.0);
     assert!(m.f_dot - 23.0 < 1.0);
-    assert!(m.d.v() - 0.2 < 0.1);
-    assert!(m.d_dot.v() - 0.03 < 0.01);
-    assert!(m.i.v() - 1.0 < 1.0);
-    assert!(m.i_dot.v() - 0.0002 < 0.0001);
+    assert!(m.d.f() - 0.2 < 0.1);
+    assert!(m.d_dot.f() - 0.03 < 0.01);
+    assert!(m.i.f() - 1.0 < 1.0);
+    assert!(m.i_dot.f() - 0.0002 < 0.0001);
 }
 
 #[test]
@@ -92,8 +92,8 @@ fn igrf_at_pole() {
     assert!(m.h_dot - (-10.0) < 1.0);
     assert!(m.f - 56805.0 < 1.0);
     assert!(m.f_dot - 24.0 < 1.0);
-    assert!(m.d.v() - 0.2 < 0.1);
-    assert!(m.d_dot.v() - 0.03 < 0.01);
-    assert!(m.i.v() - 1.0 < 1.0);
-    assert!(m.i_dot.v() - 0.0002 < 0.0001);
+    assert!(m.d.f() - 0.2 < 0.1);
+    assert!(m.d_dot.f() - 0.03 < 0.01);
+    assert!(m.i.f() - 1.0 < 1.0);
+    assert!(m.i_dot.f() - 0.0002 < 0.0001);
 }

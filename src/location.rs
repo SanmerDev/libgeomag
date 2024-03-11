@@ -1,4 +1,4 @@
-use crate::num::{Deg, Float, Unit};
+use crate::num::{Degree, Float, Angle};
 
 const A: f64 = 6378137.0;
 const F: f64 = 1.0 / 298.257223563;
@@ -11,18 +11,18 @@ pub struct GeodeticLocation {
 }
 
 impl GeodeticLocation {
-    pub fn new(longitude: Deg, latitude: Deg, height_m: f64) -> Self {
-        let lat = if (90.0 - latitude.v()) < 1e-10 {
+    pub fn new(longitude: Degree, latitude: Degree, height_m: f64) -> Self {
+        let lat = if (90.0 - latitude.f()) < 1e-10 {
             (90.0 - 1e-6).deg()
-        } else if (90.0 + latitude.v()) < 1e-10 {
+        } else if (90.0 + latitude.f()) < 1e-10 {
             (-90.0 + 1e-6).deg()
         } else {
             latitude
         };
 
         GeodeticLocation {
-            longitude: longitude.rad().v(),
-            latitude: lat.rad().v(),
+            longitude: longitude.rad().f(),
+            latitude: lat.rad().f(),
             height: height_m,
         }
     }

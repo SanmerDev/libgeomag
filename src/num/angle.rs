@@ -2,54 +2,54 @@ use core::f64::consts::PI;
 use core::fmt;
 
 #[derive(Copy, Clone)]
-pub struct Rad(f64);
+pub struct Radian(f64);
 
-impl Rad {
+impl Radian {
     #[inline]
-    pub fn deg(&self) -> Deg {
-        Deg(self.0.to_degrees())
+    pub fn deg(&self) -> Degree {
+        Degree(self.0.to_degrees())
     }
 }
 
 #[derive(Copy, Clone)]
-pub struct Deg(f64);
+pub struct Degree(f64);
 
-impl Deg {
+impl Degree {
     #[inline]
-    pub fn rad(&self) -> Rad {
-        Rad(self.0.to_radians())
+    pub fn rad(&self) -> Radian {
+        Radian(self.0.to_radians())
     }
 }
 
-pub trait Unit {
-    fn rad(self) -> Rad;
-    fn deg(self) -> Deg;
+pub trait Angle {
+    fn rad(self) -> Radian;
+    fn deg(self) -> Degree;
 }
 
-impl Unit for f64 {
+impl Angle for f64 {
     #[inline]
-    fn rad(self) -> Rad {
-        Rad(self)
+    fn rad(self) -> Radian {
+        Radian(self)
     }
 
     #[inline]
-    fn deg(self) -> Deg {
-        Deg(self)
+    fn deg(self) -> Degree {
+        Degree(self)
     }
 }
 
-macro_rules! impl_v {
+macro_rules! impl_f {
     ($type:ty) => {
         impl $type {
-            pub fn v(&self) -> f64 {
+            pub fn f(&self) -> f64 {
                 self.0
             }
         }
     };
 }
 
-impl_v!(Rad);
-impl_v!(Deg);
+impl_f!(Radian);
+impl_f!(Degree);
 
 macro_rules! impl_display {
     ($type:ty) => {
@@ -67,5 +67,5 @@ macro_rules! impl_display {
     };
 }
 
-impl_display!(Rad);
-impl_display!(Deg);
+impl_display!(Radian);
+impl_display!(Degree);
