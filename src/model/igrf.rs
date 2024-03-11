@@ -1,5 +1,5 @@
 use crate::model::Model;
-use crate::num::{Float, NumInto};
+use crate::num::{Float, NumFrom};
 
 const IGRF_EPOCH_INTERVAL: f64 = 5.0;
 const IGRF_START: f64 = 1900.0;
@@ -17,12 +17,13 @@ fn nm_to_index(n: usize, m: usize) -> usize {
 #[inline]
 fn year_to_index(t: f64) -> usize {
     let v = ((t - IGRF_START) / IGRF_EPOCH_INTERVAL).floor();
-    unsafe { v.try_into_unchecked() }
+    unsafe { usize::from_unchecked(v) }
 }
 
 #[inline]
 fn index_to_year(i: usize) -> f64 {
-    unsafe { IGRF_EPOCH_INTERVAL * i.try_into_unchecked() + IGRF_START }
+    let v = unsafe { f64::from_unchecked(i) };
+    IGRF_EPOCH_INTERVAL * v + IGRF_START
 }
 
 pub struct IGRF {

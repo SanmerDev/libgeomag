@@ -7,7 +7,7 @@ pub use crate::location::GeodeticLocation;
 
 use crate::location::GeocentricLocation;
 use crate::model::{Gauss, Model};
-use crate::num::{Angle, Float, NumInto};
+use crate::num::{Angle, Float, NumFrom};
 use crate::polynomial::lpmv;
 
 mod datetime;
@@ -85,13 +85,13 @@ impl<'a, T: Gauss> Calculator<'a, T> {
 
     #[inline]
     unsafe fn lpmn(&self, n: usize, m: usize, z: f64) -> f64 {
-        let m_f = m.try_into_unchecked();
+        let m_f = f64::from_unchecked(m);
         let pnm = (-1.0_f64).powf(m_f) * lpmv(n, m, z);
 
         if m > 0 {
             let mut d = 1.0;
             for i in (n - m + 1)..=(n + m) {
-                d *= i.try_into_unchecked();
+                d *= f64::from_unchecked(i);
             }
 
             pnm * (2.0 * (1.0 / d)).sqrt()
@@ -112,11 +112,11 @@ impl<'a, T: Gauss> Calculator<'a, T> {
         let cos_p = p.cos();
 
         for n in 1..=self.deg {
-            let n_f = n.try_into_unchecked();
+            let n_f = f64::from_unchecked(n);
             let f = (a / r).powf(n_f + 2.0);
 
             for m in 0..=n {
-                let m_f = m.try_into_unchecked();
+                let m_f = f64::from_unchecked(m);
                 let cos_ml = (m_f * l).cos();
                 let sin_ml = (m_f * l).sin();
 
