@@ -17,7 +17,7 @@ features = ["libm"]
 ## demo
 ```rust
 use geomag::model::{IGRF, WMM};
-use geomag::num::Unit;
+use geomag::num::Angle;
 use geomag::{DateTime, GeodeticLocation, Geomag};
 
 fn main() {
