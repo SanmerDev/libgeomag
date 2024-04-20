@@ -21,69 +21,60 @@ fn vec_to_out<P: AsRef<Path>>(v: Vec<Vec<f64>>, file: P) {
 }
 
 #[cfg(feature = "wmm")]
-fn parse_wmm<P: AsRef<Path>>(p: P) -> Vec<Vec<f64>> {
-    let constant = fs::read_to_string(p).unwrap();
-    constant
+fn parse_wmm<P: AsRef<Path>>(p: P) {
+    let content = fs::read_to_string(p).unwrap();
+    let constant = content
         .lines()
         .map(|s| {
             let values_str = s.split_whitespace().collect::<Vec<&str>>();
             parse_str(&values_str[2..])
         })
-        .collect()
+        .collect();
+
+    vec_to_out(constant, "WMM_COF");
 }
 
+#[cfg(not(feature = "wmm"))]
+fn parse_wmm<P: AsRef<Path>>(_p: P) {}
+
 #[cfg(feature = "igrf")]
-fn parse_igrf<P: AsRef<Path>>(p: P) -> (Vec<Vec<f64>>, Vec<Vec<f64>>) {
-    let constant = fs::read_to_string(p).unwrap();
-    let constant: Vec<Vec<&str>> = constant
+fn parse_igrf<P: AsRef<Path>>(p: P) {
+    let content = fs::read_to_string(p).unwrap();
+    let constant: Vec<Vec<&str>> = content
         .lines()
         .map(|s| s.split_whitespace().collect())
         .collect();
 
-    let mut values_g = Vec::new();
-    let mut values_h = Vec::new();
+    let mut constant_g = Vec::new();
+    let mut constant_h = Vec::new();
 
     for values_str in constant {
         match values_str[0] {
             "g" => {
                 let values = &values_str[3..];
-                values_g.push(parse_str(values))
+                constant_g.push(parse_str(values));
+
+                if values_str[2] == "0" {
+                    constant_h.push(vec![0_f64; values.len()])
+                }
             }
             "h" => {
                 let values = &values_str[3..];
-                values_h.push(parse_str(values));
-
-                // Keep the same index as 'values_g', and zero-pad empty data
-                if values_str[1] == values_str[2] {
-                    values_h.push(vec![0_f64; values.len()])
-                }
+                constant_h.push(parse_str(values));
             }
             _ => {}
         }
     }
 
-    // Move last zero-pad data to first, h[0, 0]
-    match values_h.pop() {
-        None => {}
-        Some(v) => values_h.insert(0, v),
-    }
-
-    (values_g, values_h)
+    vec_to_out(constant_g, "IGRF_COF_G");
+    vec_to_out(constant_h, "IGRF_COF_H");
 }
+
+#[cfg(not(feature = "igrf"))]
+fn parse_igrf<P: AsRef<Path>>(_p: P) {}
 
 fn main() {
     let data_dir = Path::new("data");
-
-    #[cfg(feature = "wmm")]
-    {
-        let wmm = parse_wmm(data_dir.join("WMM.COF"));
-        vec_to_out(wmm, "WMM_COF");
-    }
-
-    #[cfg(feature = "igrf")]
-    {
-        let (igrf_g, igrf_h) = parse_igrf(data_dir.join("IGRF.COF"));
-        vec_to_out(igrf_g, "IGRF_COF_G");
-        vec_to_out(igrf_h, "IGRF_COF_H");
-    }
+    parse_wmm(data_dir.join("WMM.COF"));
+    parse_igrf(data_dir.join("IGRF.COF"));
 }
