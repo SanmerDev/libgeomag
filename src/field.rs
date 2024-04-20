@@ -1,5 +1,3 @@
-use crate::num::Radian;
-
 #[derive(Debug, Copy, Clone)]
 pub struct MagneticField {
     pub x: f64,
@@ -12,8 +10,8 @@ pub struct MagneticField {
     pub h_dot: f64,
     pub f: f64,
     pub f_dot: f64,
-    pub d: Radian,
-    pub d_dot: Radian,
-    pub i: Radian,
-    pub i_dot: Radian,
+    pub d: f64,
+    pub d_dot: f64,
+    pub i: f64,
+    pub i_dot: f64,
 }

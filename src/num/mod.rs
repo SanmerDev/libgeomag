@@ -1,7 +1,5 @@
-pub use angle::{Angle, Degree, Radian};
-pub(crate) use convert::{NumFrom, NumInto};
-pub(crate) use float::Float;
+pub use convert::{NumFrom, NumInto};
+pub use float::Float;
 
-mod angle;
 mod convert;
 mod float;

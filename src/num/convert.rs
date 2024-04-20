@@ -1,8 +1,8 @@
-pub(crate) trait NumFrom<T>: Sized {
+pub trait NumFrom<T>: Sized {
     unsafe fn from_unchecked(value: T) -> Self;
 }
 
-pub(crate) trait NumInto<T>: Sized {
+pub trait NumInto<T>: Sized {
     unsafe fn into_unchecked(self) -> T;
 }
 
