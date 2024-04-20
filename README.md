@@ -16,12 +16,10 @@ features = ["libm"]
 
 ## demo
 ```rust
-use geomag::model::{IGRF, WMM};
-use geomag::num::Angle;
-use geomag::{DateTime, GeodeticLocation, Geomag};
+use geomag::*;
 
 fn main() {
-    let l = GeodeticLocation::new(102.0.deg(), 24.0.deg(), 1900.0);
+    let l = GeodeticLocation::new(102.0, 24.0, 1900.0);
     let t = DateTime::new(2023, 11, 1, 0, 0, 0).unwrap();
 
     let wmm = WMM::new(t.decimal()).unwrap();
